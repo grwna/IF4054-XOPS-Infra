@@ -72,6 +72,8 @@ resource "helm_release" "ingress_nginx" {
   chart            = "ingress-nginx"
   namespace        = "ingress-nginx"
   create_namespace = true
+  timeout          = 900
+  cleanup_on_fail  = true
   depends_on       = [kind_cluster.xops]
 
   set {
@@ -87,7 +89,8 @@ resource "helm_release" "kyverno" {
   chart            = "kyverno"
   namespace        = "kyverno"
   create_namespace = true
-  wait             = true
+  timeout          = 900
+  cleanup_on_fail  = true
   depends_on       = [kind_cluster.xops]
 }
 
@@ -97,7 +100,8 @@ resource "helm_release" "metrics_server" {
   repository       = "https://kubernetes-sigs.github.io/metrics-server/"
   chart            = "metrics-server"
   namespace        = "kube-system"
-  wait             = true
+  timeout          = 900
+  cleanup_on_fail  = true
   depends_on       = [kind_cluster.xops]
 
   set {
