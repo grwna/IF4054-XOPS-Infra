@@ -19,6 +19,12 @@
         state: present
         update_cache: yes
 
+    - name: Ensure user is in the docker group
+      user:
+        name: xops
+        groups: docker
+        append: yes
+
     # --- Install and setup cloudflare tunnels ---
     - name: Download cloudflared deb package
       get_url:
