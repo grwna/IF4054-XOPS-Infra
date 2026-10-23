@@ -1,0 +1,10 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: good-app
+  labels:
+    team: xops
+spec:
+  containers:
+    - name: good-app
+      image: nginx:alpine
