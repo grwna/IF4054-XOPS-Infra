@@ -17,7 +17,7 @@ This repo currently runs on **placeholder** content so Member 3's infra pipeline
 - `cluster.yaml` — kind cluster config (ports 80/443 mapped to host)
 - `k8s.tf` — terraform: kind cluster, ns dev/prod, ingress-nginx, kyverno, metrics-server
 - `server-setup.yaml` — host bootstrap: packages, cloudflared, kubectl/kind/helm/kyverno-cli, GitLab Runner (docker executor, host network, kubeconfig mount)
-- `.gitlab-ci.yml` — infra pipeline stages: validate → deploy-infra → deploy-dev (auto) → deploy-prod (manual gate, `main` only)
+- `.gitlab-ci.yml` — infra pipeline stages: validate → deploy-cluster (terraform) → deploy-infra (policies) → deploy-dev (auto) → deploy-prod (manual gate, `main` only)
 - `vars.yaml` (gitignored) — cf_token + glrt- runner token
 
 ## To go final (remove placeholders)
