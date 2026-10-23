@@ -47,15 +47,15 @@
         dest: /usr/local/bin/kind
         mode: '0755'
 
-    - name: Add HashiCorp GPG key
-      get_url:
-        url: https://apt.releases.hashicorp.com/gpg
-        dest: /usr/share/keyrings/hashicorp-archive-keyring.gpg
-        mode: '0644'
+    - name: Download and de-armor HashiCorp GPG key
+      shell: |
+        curl -fsSL https://apt.releases.hashicorp.com/gpg | gpg --dearmor -o /usr/share/keyrings/hashicorp-archive-keyring.gpg
+      args:
+        creates: /usr/share/keyrings/hashicorp-archive-keyring.gpg
 
     - name: Add HashiCorp repository
       apt_repository:
-        repo: "deb [signed-by=/usr/share/keyrings/hashicorp-archive-keyring.gpg] https://apt.releases.hashicorp.com {{ ansible_distribution_release }} main"
+        repo: "deb [signed-by=/usr/share/keyrings/hashicorp-archive-keyring.gpg] https://apt.releases.hashicorp.com noble main"
         state: present
         filename: hashicorp
 
