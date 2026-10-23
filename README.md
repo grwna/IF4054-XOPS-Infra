@@ -52,6 +52,14 @@ sudo terraform apply -target=kind_cluster.xops
 sudo terraform apply -auto-approve
 ```
 
+### Restart after shutdown
+
+After WSL/server reboot — no ansible, no terraform needed (state on disk):
+```bash
+chmod +x start.sh && sudo ./start.sh
+```
+Starts docker, kind node, gitlab-runner, cloudflared. See comments in `start.sh` for when NOT to use it (first setup / deleted cluster = redo day 0).
+
 ### Day 1+ — Pipeline
 
 Push to repo. Runner (same host) picks jobs. Stages:
