@@ -13,11 +13,11 @@
 **Day 0 (once, manual):** ansible installs host tools + registers runner; terraform creates cluster + platform.
 **Day 1+ (every push):** runner picks job, pipeline applies Kyverno policies + deploys Helm chart (dev auto, prod manual gate).
 
-Pipeline never re-runs ansible (job container `localhost` != host). Terraform state lives on host — pipeline does not run terraform, so runner/ansible/cloudflared untouched. Safe.
+Pipeline never re-runs ansible (job container `localhost` != host). Terraform state lives on host - pipeline does not run terraform, so runner/ansible/cloudflared untouched. Safe.
 
 ## How to Use
 
-### Day 0 — Bootstrap (once)
+### Day 0 - Bootstrap (once)
 
 - Install SSH and Ansible:
 ```bash
@@ -54,19 +54,19 @@ sudo terraform apply -auto-approve
 
 ### Restart after shutdown
 
-After WSL/server reboot — no ansible, no terraform needed (state on disk):
+After WSL/server reboot - no ansible, no terraform needed (state on disk):
 ```bash
 chmod +x start.sh && sudo ./start.sh
 ```
 Starts docker, kind node, gitlab-runner, cloudflared. See comments in `start.sh` for when NOT to use it (first setup / deleted cluster = redo day 0).
 
-### Day 1+ — Pipeline
+### Day 1+ - Pipeline
 
 Push to repo. Runner (same host) picks jobs. Stages:
-1. `validate` — kyverno CLI test on policies
-2. `deploy-infra` — kubectl apply Kyverno ClusterPolicies
-3. `deploy-dev` — helm upgrade to `dev` namespace (auto)
-4. `deploy-prod` — helm upgrade to `prod` (manual gate, `main` only)
+1. `validate` - kyverno CLI test on policies
+2. `deploy-infra` - kubectl apply Kyverno ClusterPolicies
+3. `deploy-dev` - helm upgrade to `dev` namespace (auto)
+4. `deploy-prod` - helm upgrade to `prod` (manual gate, `main` only)
 
 If jobs stuck "no runner": runner must have tag `xops` (GitLab UI > Settings > CI/CD > Runners > Edit runner > Tags).
 
