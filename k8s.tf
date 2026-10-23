@@ -80,6 +80,16 @@ resource "helm_release" "ingress_nginx" {
     name  = "controller.hostPort.enabled"
     value = "true"
   }
+
+  set {
+    name = "controller.service.type"
+    value = "NodePort"
+  }
+
+  set {
+    name  = "controller.admissionWebhooks.enabled"
+    value = "false"
+  }
 }
 
 # --- Kyverno Helm Chart ---
