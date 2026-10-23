@@ -9,14 +9,13 @@
     kubectl_version: "v1.31.0"
     kind_version: "v0.24.0"
     kyverno_cli_version: "v1.19.2"
-    terraform_version: "1.17.0"
     gitlab_url: "https://gitlab-edu.itb.ac.id"
 
   tasks:
     # --- System Packages ---
     - name: Ensure base packages installed
       apt:
-        name: [curl, tar, unzip, docker.io, python3-docker]
+        name: [curl, tar, docker.io, python3-docker]
         state: present
         update_cache: yes
 
@@ -48,14 +47,23 @@
         dest: /usr/local/bin/kind
         mode: '0755'
 
-    - name: Install Terraform
-      unarchive:
-        src: "https://releases.hashicorp.com/terraform/{{ terraform_version }}/terraform_{{ terraform_version }}_linux_amd64.zip"
-        dest: /usr/local/bin/
-        remote_src: yes
-        mode: '0755'
-      args:
-        creates: /usr/local/bin/terraform
+    - name: Add HashiCorp GPG key
+      get_url:
+        url: https://apt.releases.hashicorp.com/gpg
+        dest: /usr/share/keyrings/hashicorp-archive-keyring.gpg
+        mode: '0644'
+
+    - name: Add HashiCorp repository
+      apt_repository:
+        repo: "deb [signed-by=/usr/share/keyrings/hashicorp-archive-keyring.gpg] https://apt.releases.hashicorp.com {{ ansible_distribution_release }} main"
+        state: present
+        filename: hashicorp
+
+    - name: Install Terraform via apt
+      apt:
+        name: terraform
+        state: present
+        update_cache: yes
 
     - name: Install Helm via official script
       shell: |
