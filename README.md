@@ -34,7 +34,7 @@ chmod +x init.sh && sudo ./init.sh
 
 - Fill `vars.yaml` (copy `vars-example.yaml`, set `cf_token` + `gitlab_token` glrt- runner token), then:
 ```bash
-ansible-playbook server-setup.yaml --ask-become-pass
+sudo ansible-playbook server-setup.yaml
 ```
 
 - Verify tools + runner container:

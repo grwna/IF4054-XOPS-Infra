@@ -8,6 +8,7 @@
   vars:
     kubectl_version: "v1.31.0"
     kind_version: "v0.24.0"
+    kyverno_cli_version: "v1.19.2"
     gitlab_url: "https://gitlab-edu.itb.ac.id"
 
   tasks:
@@ -54,11 +55,13 @@
 
     - name: Install Kyverno CLI
       unarchive:
-        src: "https://github.com/kyverno/kyverno/releases/latest/download/kyverno-cli_linux_x86_64.tar.gz"
+        src: "https://github.com/kyverno/kyverno/releases/download/{{ kyverno_cli_version }}/kyverno-cli_{{ kyverno_cli_version }}_linux_x86_64.tar.gz"
         dest: /usr/local/bin/
         remote_src: yes
         mode: '0755'
         extra_opts: ['kyverno']
+      args:
+        creates: /usr/local/bin/kyverno
 
     # --- Docker Workloads ---
     - name: Run GitLab Runner container
