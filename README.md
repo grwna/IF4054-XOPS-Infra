@@ -1,93 +1,95 @@
 # retail-app-infra-xops
 
+> **Placeholder content:** app chart + Kyverno policies are dummy until Member 1/2 deliver. See [PLACEHOLDER_NOTICE.md](PLACEHOLDER_NOTICE.md).
 
+## Tech Stack
+- Kind, kubectl, Helm, Kyverno, metrics-server
+- Terraform (cluster + namespaces + ingress-nginx + Kyverno + metrics-server)
+- Ansible (host bootstrap: tools, cloudflared, GitLab Runner)
+- GitLab CI/CD (runner on same host as cluster)
 
-## Getting started
+## Bootstrap vs Pipeline
 
-To make it easy for you to get started with GitLab, here's a list of recommended next steps.
+**Day 0 (once, manual):** ansible installs host tools + registers runner; terraform creates cluster + platform.
+**Day 1+ (every push):** runner picks job, pipeline applies Kyverno policies + deploys Helm chart (dev auto, prod manual gate).
 
-Already a pro? Just edit this README.md and make it your own. Want to make it easy? [Use the template at the bottom](#editing-this-readme)!
+Pipeline never re-runs ansible (job container `localhost` != host). Terraform state lives on host — pipeline does not run terraform, so runner/ansible/cloudflared untouched. Safe.
 
-## Add your files
+## How to Use
 
-* [Create](https://docs.gitlab.com/user/project/repository/web_editor/#create-a-file) or [upload](https://docs.gitlab.com/user/project/repository/web_editor/#upload-a-file) files
-* [Add files using the command line](https://docs.gitlab.com/topics/git/add_files/#add-files-to-a-git-repository) or push an existing Git repository with the following command:
+### Day 0 — Bootstrap (once)
 
+- Install SSH and Ansible:
+```bash
+sudo apt install openssh ansible
+
+# or
+
+chmod +x init.sh && sudo ./init.sh
 ```
-cd existing_repo
-git remote add origin https://gitlab-edu.itb.ac.id/if4054-2026-t1-13523035-13523095-13523106/retail-app-infra-xops.git
-git branch -M main
-git push -uf origin main
+
+- Fill `vars.yaml` (copy `vars-example.yaml`, set `cf_token` + `gitlab_token` glrt- runner token), then:
+```bash
+ansible-playbook server-setup.yaml --ask-become-pass
 ```
 
-## Integrate with your tools
+- Verify tools + runner container:
+```bash
+kubectl version --client
+kind --version
+docker ps
+```
 
-* [Set up project integrations](https://gitlab-edu.itb.ac.id/if4054-2026-t1-13523035-13523095-13523106/retail-app-infra-xops/-/settings/integrations)
+- Create cluster + platform (kind, namespaces, ingress-nginx, Kyverno, metrics-server):
+```bash
+sudo terraform init
+sudo terraform apply -auto-approve
+```
 
-## Collaborate with your team
+Note: first ever `terraform apply` may fail plan (kubeconfig not yet on disk). If so:
+```bash
+sudo terraform apply -target=kind_cluster.xops
+sudo terraform apply -auto-approve
+```
 
-* [Invite team members and collaborators](https://docs.gitlab.com/user/project/members/)
-* [Create a new merge request](https://docs.gitlab.com/user/project/merge_requests/creating_merge_requests/)
-* [Automatically close issues from merge requests](https://docs.gitlab.com/user/project/issues/managing_issues/#closing-issues-automatically)
-* [Enable merge request approvals](https://docs.gitlab.com/user/project/merge_requests/approvals/)
-* [Set auto-merge](https://docs.gitlab.com/user/project/merge_requests/auto_merge/)
+### Day 1+ — Pipeline
 
-## Test and Deploy
+Push to repo. Runner (same host) picks jobs. Stages:
+1. `validate` — kyverno CLI test on policies
+2. `deploy-infra` — kubectl apply Kyverno ClusterPolicies
+3. `deploy-dev` — helm upgrade to `dev` namespace (auto)
+4. `deploy-prod` — helm upgrade to `prod` (manual gate, `main` only)
 
-Use the built-in continuous integration in GitLab.
+If jobs stuck "no runner": runner must have tag `xops` (GitLab UI > Settings > CI/CD > Runners > Edit runner > Tags).
 
-* [Get started with GitLab CI/CD](https://docs.gitlab.com/ci/quick_start/)
-* [Analyze your code for known vulnerabilities with Static Application Security Testing (SAST)](https://docs.gitlab.com/user/application_security/sast/)
-* [Deploy to Kubernetes, Amazon EC2, or Amazon ECS using Auto Deploy](https://docs.gitlab.com/topics/autodevops/requirements/)
-* [Use pull-based deployments for improved Kubernetes management](https://docs.gitlab.com/user/clusters/agent/)
-* [Set up protected environments](https://docs.gitlab.com/ci/environments/protected_environments/)
+### Verify
 
-***
+```bash
+kubectl get ns
+kubectl get pods -n dev
+kubectl get pods -n prod
+kubectl get pods -n ingress-nginx
+kubectl get pods -n kyverno
+```
 
-# Editing this README
+### E2E
 
-When you're ready to make this README your own, just edit this file and use the handy template below (or feel free to structure it however you want - this is just a starting point!). Thanks to [makeareadme.com](https://www.makeareadme.com/) for this template.
+```bash
+echo "127.0.0.1 retail-xops.local retail-prod.local" | sudo tee -a /etc/hosts
+curl -I http://retail-xops.local
+curl -I http://retail-prod.local
+```
 
-## Suggestions for a good README
+### HPA
 
-Every project is different, so consider which of these sections apply to yours. The sections used in the template are suggestions for most open source projects. Also keep in mind that while a README can be too long and detailed, too long is better than too short. If you think your README is too long, consider utilizing another form of documentation rather than cutting out information.
+```bash
+kubectl get hpa -n dev -w
+kubectl run -i --tty load-generator --rm --image=busybox:1.28 --restart=Never -- /bin/sh -c "while true; do wget -q -O- http://retail-app.dev.svc.cluster.local; done"
+```
 
-## Name
-Choose a self-explaining name for your project.
+### Policy rejection proof
 
-## Description
-Let people know what your project can do specifically. Provide context and add a link to any reference visitors might be unfamiliar with. A list of Features or a Background subsection can also be added here. If there are alternatives to your project, this is a good place to list differentiating factors.
-
-## Badges
-On some READMEs, you may see small images that convey metadata, such as whether or not all the tests are passing for the project. You can use Shields to add some to your README. Many services also have instructions for adding a badge.
-
-## Visuals
-Depending on what you are making, it can be a good idea to include screenshots or even a video (you'll frequently see GIFs rather than actual videos). Tools like ttygif can help, but check out Asciinema for a more sophisticated method.
-
-## Installation
-Within a particular ecosystem, there may be a common way of installing things, such as using Yarn, NuGet, or Homebrew. However, consider the possibility that whoever is reading your README is a novice and would like more guidance. Listing specific steps helps remove ambiguity and gets people to using your project as quickly as possible. If it only runs in a specific context like a particular programming language version or operating system or has dependencies that have to be installed manually, also add a Requirements subsection.
-
-## Usage
-Use examples liberally, and show the expected output if you can. It's helpful to have inline the smallest example of usage that you can demonstrate, while providing links to more sophisticated examples if they are too long to reasonably include in the README.
-
-## Support
-Tell people where they can go to for help. It can be any combination of an issue tracker, a chat room, an email address, etc.
-
-## Roadmap
-If you have ideas for releases in the future, it is a good idea to list them in the README.
-
-## Contributing
-State if you are open to contributions and what your requirements are for accepting them.
-
-For people who want to make changes to your project, it's helpful to have some documentation on how to get started. Perhaps there is a script that they should run or some environment variables that they need to set. Make these steps explicit. These instructions could also be useful to your future self.
-
-You can also document commands to lint the code or run tests. These steps help to ensure high code quality and reduce the likelihood that the changes inadvertently break something. Having instructions for running tests is especially helpful if it requires external setup, such as starting a Selenium server for testing in a browser.
-
-## Authors and acknowledgment
-Show your appreciation to those who have contributed to the project.
-
-## License
-For open source projects, say how it is licensed.
-
-## Project status
-If you have run out of energy or time for your project, put a note at the top of the README saying that development has slowed down or stopped completely. Someone may choose to fork your project or volunteer to step in as a maintainer or owner, allowing your project to keep going. You can also make an explicit request for maintainers.
+```bash
+kubectl apply -f non-compliant-deployment.yaml -n dev
+# expect admission webhook deny (placeholder: missing team label; Member 2 policies: root/read-only/etc)
+```

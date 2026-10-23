@@ -1,0 +1,96 @@
+---
+- name: Provision Server Environment
+  hosts: localhost
+  connection: local
+  become: true
+  vars_files:
+    - vars.yaml
+  vars:
+    kubectl_version: "v1.31.0"
+    kind_version: "v0.24.0"
+    gitlab_url: "https://gitlab-edu.itb.ac.id"
+
+  tasks:
+    # --- System Packages ---
+    - name: Ensure base packages installed
+      apt:
+        name: [curl, tar, docker.io, python3-docker]
+        state: present
+        update_cache: yes
+
+    # --- Install and setup cloudflare tunnels ---
+    - name: Download cloudflared deb package
+      get_url:
+        url: "https://github.com/cloudflare/cloudflared/releases/latest/download/cloudflared-linux-amd64.deb"
+        dest: /tmp/cloudflared.deb
+
+    - name: Install cloudflared package
+      apt:
+        deb: /tmp/cloudflared.deb
+
+    - name: Install and start cloudflared service
+      command: "cloudflared service install {{ cf_token }}"
+      args:
+        creates: /etc/systemd/system/cloudflared.service
+
+    # --- CLI Tools Installation ---
+    - name: Install kubectl
+      get_url:
+        url: "https://dl.k8s.io/release/{{ kubectl_version }}/bin/linux/amd64/kubectl"
+        dest: /usr/local/bin/kubectl
+        mode: '0755'
+
+    - name: Install Kind
+      get_url:
+        url: "https://kind.sigs.k8s.io/dl/{{ kind_version }}/kind-linux-amd64"
+        dest: /usr/local/bin/kind
+        mode: '0755'
+
+    - name: Install Helm via official script
+      shell: |
+        curl -fsSL https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3 | bash
+      args:
+        creates: /usr/local/bin/helm
+
+    - name: Install Kyverno CLI
+      unarchive:
+        src: "https://github.com/kyverno/kyverno/releases/latest/download/kyverno-cli_linux_x86_64.tar.gz"
+        dest: /usr/local/bin/
+        remote_src: yes
+        mode: '0755'
+        extra_opts: ['kyverno']
+
+    # --- Docker Workloads ---
+    - name: Run GitLab Runner container
+      docker_container:
+        name: gitlab-runner
+        image: gitlab/gitlab-runner:latest
+        state: started
+        restart_policy: always
+        volumes:
+          - /var/run/docker.sock:/var/run/docker.sock
+          - gitlab-runner-config:/etc/gitlab-runner
+          - /root/.kube:/root/.kube
+
+    - name: Check runner registration state
+      command: docker exec gitlab-runner cat /etc/gitlab-runner/config.toml
+      register: runner_cfg
+      failed_when: false
+      changed_when: false
+
+    - name: Register GitLab Runner
+      command: >
+        docker exec gitlab-runner gitlab-runner register
+        --non-interactive
+        --url "{{ gitlab_url }}"
+        --token "{{ gitlab_token }}"
+        --executor "docker"
+        --docker-image "alpine:latest"
+        --docker-volumes "/var/run/docker.sock:/var/run/docker.sock"
+        --docker-volumes "/root/.kube:/root/.kube"
+        --docker-network-mode "host"
+        --description "wsl-kind-runner"
+      when: "'[[runners]]' not in runner_cfg.stdout"
+      register: runner_reg
+      failed_when: false
+      changed_when: runner_reg.rc == 0

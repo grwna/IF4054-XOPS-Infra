@@ -1,0 +1,52 @@
+stages:
+  - validate
+  - deploy-infra
+  - deploy-dev
+  - deploy-prod
+
+default:
+  tags:
+    - xops
+
+variables:
+  KUBECONFIG: /root/.kube/config
+
+# Kyverno CLI validation (placeholder policies)
+validate_policies:
+  stage: validate
+  image:
+    name: ghcr.io/kyverno/kyverno-cli:latest
+    entrypoint: [""]
+  script:
+    - kyverno test ./kyverno-policies/
+
+# Deploy Kyverno ClusterPolicies to cluster
+deploy_infra:
+  stage: deploy-infra
+  image: alpine:3.20
+  script:
+    - apk add --no-cache curl
+    - curl -fsSL -o kubectl "https://dl.k8s.io/release/$(curl -fsSL https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl"
+    - chmod +x kubectl
+    - ./kubectl apply -f kyverno-policies/require-team-label.yaml
+
+# Automatic deployment to Dev environment (k8s namespace: dev)
+deploy_dev:
+  stage: deploy-dev
+  image: alpine/helm:latest
+  script:
+    - helm upgrade --install retail-app ./helm-charts/retail-app -n dev --values ./helm-charts/retail-app/values-dev.yaml
+  environment:
+    name: dev
+
+# Manual approval gate for Production deployment
+deploy_prod:
+  stage: deploy-prod
+  image: alpine/helm:latest
+  script:
+    - helm upgrade --install retail-app ./helm-charts/retail-app -n prod --values ./helm-charts/retail-app/values-prod.yaml
+  environment:
+    name: prod
+  when: manual  # Enforces mandatory 1-person approval rule
+  only:
+    - main

@@ -1,0 +1,3 @@
+cf_token: "cloudflare-zero-trust-tunnel-token-here"
+# GitLab runner authentication token (glrt-...), from GitLab UI: Settings > CI/CD > Runners > New project runner
+gitlab_token: "glrt-your-token-here"
