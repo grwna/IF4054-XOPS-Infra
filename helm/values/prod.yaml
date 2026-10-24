@@ -1,0 +1,65 @@
+# Environment overlay: prod
+#
+# Applied on top of each service chart's own values.yaml defaults via:
+#   helm template retail helm/charts/app -f helm/values/prod.yaml --namespace prod
+#
+# image.tag below is a placeholder. The infra CI/CD pipeline promotes
+# a release that already passed dev by pinning the exact commit-sha tag that was
+# validated in dev, e.g. --set cart.image.tag=$RELEASE_SHA, after manual approval.
+# prod never deploys :latest directly so the running candidate is always
+# identifiable and reproducible.
+
+cart:
+  image:
+    repository: registry.gitlab-edu.itb.ac.id/if4054-2026-t1-13523035-13523095-13523106/retail-store-app-xops/cart
+    tag: "1.6.3"
+  autoscaling:
+    enabled: true
+    minReplicas: 2
+    maxReplicas: 6
+    targetCPUUtilizationPercentage: 70
+
+catalog:
+  image:
+    repository: registry.gitlab-edu.itb.ac.id/if4054-2026-t1-13523035-13523095-13523106/retail-store-app-xops/catalog
+    tag: "1.6.3"
+  autoscaling:
+    enabled: true
+    minReplicas: 2
+    maxReplicas: 6
+    targetCPUUtilizationPercentage: 70
+
+checkout:
+  image:
+    repository: registry.gitlab-edu.itb.ac.id/if4054-2026-t1-13523035-13523095-13523106/retail-store-app-xops/checkout
+    tag: "1.6.3"
+  autoscaling:
+    enabled: true
+    minReplicas: 2
+    maxReplicas: 6
+    targetCPUUtilizationPercentage: 70
+
+orders:
+  image:
+    repository: registry.gitlab-edu.itb.ac.id/if4054-2026-t1-13523035-13523095-13523106/retail-store-app-xops/orders
+    tag: "1.6.3"
+  autoscaling:
+    enabled: true
+    minReplicas: 2
+    maxReplicas: 6
+    targetCPUUtilizationPercentage: 70
+
+ui:
+  image:
+    repository: registry.gitlab-edu.itb.ac.id/if4054-2026-t1-13523035-13523095-13523106/retail-store-app-xops/ui
+    tag: "1.6.3"
+  autoscaling:
+    enabled: true
+    minReplicas: 2
+    maxReplicas: 6
+    targetCPUUtilizationPercentage: 70
+  ingress:
+    enabled: true
+    className: nginx
+    hosts:
+      - retail.local

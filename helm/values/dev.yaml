@@ -1,0 +1,69 @@
+# Environment overlay: dev
+#
+# Applied on top of each service chart's own values.yaml defaults via:
+#   helm template retail helm/charts/app -f helm/values/dev.yaml --namespace dev
+#
+# image.tag below is a placeholder for local/offline rendering and testing.
+# The infra CI/CD pipeline is expected to override it per-run with:
+#   --set cart.image.tag=$CI_COMMIT_SHORT_SHA (and so on for each service)
+# so that dev always tracks the commit that triggered the pipeline.
+
+cart:
+  image:
+    repository: registry.gitlab-edu.itb.ac.id/if4054-2026-t1-13523035-13523095-13523106/retail-store-app-xops/cart
+    tag: latest
+    pullPolicy: Always
+  autoscaling:
+    enabled: true
+    minReplicas: 1
+    maxReplicas: 3
+    targetCPUUtilizationPercentage: 80
+
+catalog:
+  image:
+    repository: registry.gitlab-edu.itb.ac.id/if4054-2026-t1-13523035-13523095-13523106/retail-store-app-xops/catalog
+    tag: latest
+    pullPolicy: Always
+  autoscaling:
+    enabled: true
+    minReplicas: 1
+    maxReplicas: 3
+    targetCPUUtilizationPercentage: 80
+
+checkout:
+  image:
+    repository: registry.gitlab-edu.itb.ac.id/if4054-2026-t1-13523035-13523095-13523106/retail-store-app-xops/checkout
+    tag: latest
+    pullPolicy: Always
+  autoscaling:
+    enabled: true
+    minReplicas: 1
+    maxReplicas: 3
+    targetCPUUtilizationPercentage: 80
+
+orders:
+  image:
+    repository: registry.gitlab-edu.itb.ac.id/if4054-2026-t1-13523035-13523095-13523106/retail-store-app-xops/orders
+    tag: latest
+    pullPolicy: Always
+  autoscaling:
+    enabled: true
+    minReplicas: 1
+    maxReplicas: 3
+    targetCPUUtilizationPercentage: 80
+
+ui:
+  image:
+    repository: registry.gitlab-edu.itb.ac.id/if4054-2026-t1-13523035-13523095-13523106/retail-store-app-xops/ui
+    tag: latest
+    pullPolicy: Always
+  autoscaling:
+    enabled: true
+    minReplicas: 1
+    maxReplicas: 3
+    targetCPUUtilizationPercentage: 80
+  ingress:
+    enabled: true
+    className: nginx
+    hosts:
+      - dev.retail.local
