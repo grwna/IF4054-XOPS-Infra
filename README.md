@@ -181,19 +181,3 @@ kyverno test kyverno/tests/
 Autoscaling, dual image tags, and prod approval are satisfied by chart
 values + the CI/CD pipeline rather than by Kyverno — see
 [docs/policy-design.md §4](docs/policy-design.md#4-kyverno-policies) for why.
-
-## Known gap: pipeline still points at placeholder paths
-
-`.gitlab-ci.yml`'s `validate_policies`/`deploy_infra`/`deploy_dev`/`deploy_prod`
-jobs currently run against `kyverno-policies/` and
-`helm-charts/retail-app/` — the placeholder chart and policy described in
-[PLACEHOLDER_NOTICE.md](PLACEHOLDER_NOTICE.md). The real, tested deliverable
-lives at `helm/charts/app` (the actual 5-service umbrella chart) and
-`kyverno/policies/` (6 real policies) instead, at different paths than
-`PLACEHOLDER_NOTICE.md` originally expected (`helm-charts/retail-app/`,
-`kyverno-policies/`). This merge does not resolve that path mismatch — either
-the pipeline needs to point at `helm/` and `kyverno/`, or those directories
-need to be moved to match the pipeline's existing paths. Needs a quick sync
-between whoever owns the pipeline and whoever owns the manifests/policy
-before `deploy_dev`/`deploy_prod` will deploy the real, hardened chart
-instead of the placeholder nginx one.
