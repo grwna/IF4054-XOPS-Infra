@@ -1,0 +1,29 @@
+apiVersion: v2
+name: retail-store-sample-chart
+description: >-
+  Umbrella chart for the retail store sample application, vendored and
+  hardened by the infra repo: probes, resource limits, autoscaling,
+  securityContext, trusted registry.
+type: application
+version: 1.6.3
+dependencies:
+  - name: retail-store-sample-cart-chart
+    alias: cart
+    version: 1.6.3
+    repository: file://../cart
+  - name: retail-store-sample-catalog-chart
+    alias: catalog
+    version: 1.6.3
+    repository: file://../catalog
+  - name: retail-store-sample-checkout-chart
+    alias: checkout
+    version: 1.6.3
+    repository: file://../checkout
+  - name: retail-store-sample-orders-chart
+    alias: orders
+    version: 1.6.3
+    repository: file://../orders
+  - name: retail-store-sample-ui-chart
+    alias: ui
+    version: 1.6.3
+    repository: file://../ui

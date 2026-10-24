@@ -1,0 +1,46 @@
+apiVersion: kyverno.io/v1
+kind: ClusterPolicy
+metadata:
+  name: require-run-as-nonroot
+  annotations:
+    policies.kyverno.io/title: Require runAsNonRoot
+    policies.kyverno.io/category: Pod Security Standards (Restricted)
+    policies.kyverno.io/severity: high
+    policies.kyverno.io/subject: Pod
+    pod-policies.kyverno.io/autogen-controllers: Deployment
+    policies.kyverno.io/description: >-
+      Spec requirement 3.d: "Container berjalan tanpa akses root."
+      Containers must set securityContext.runAsNonRoot=true at the pod or
+      container level. Matched on Pod and auto-generated for Deployment by
+      Kyverno autogen, so a Deployment that would produce a root-running Pod
+      is rejected at admission time, not just the Pod itself. kube-system and
+      the kyverno namespace are excluded so this cannot block Kyverno's own
+      bootstrap/self-healing.
+spec:
+  validationFailureAction: Enforce
+  background: true
+  rules:
+    - name: run-as-non-root
+      match:
+        any:
+          - resources:
+              kinds:
+                - Pod
+      exclude:
+        any:
+          - resources:
+              namespaces:
+                - kube-system
+                - kyverno
+      validate:
+        message: >-
+          Container must run as non-root: securityContext.runAsNonRoot must be
+          true, set at the pod level or on every container.
+        anyPattern:
+          - spec:
+              securityContext:
+                runAsNonRoot: true
+          - spec:
+              containers:
+                - securityContext:
+                    runAsNonRoot: true

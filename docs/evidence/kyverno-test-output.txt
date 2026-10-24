@@ -1,0 +1,70 @@
+Loading test  ( kyverno-test.yaml ) ...
+  Loading values/variables ...
+  Loading policies ...
+  Warning: ../policies/require-run-as-nonroot.yaml: kyverno.io/v1 ClusterPolicy is deprecated and will be removed in a future release; migrate to ValidatingPolicy, MutatingPolicy, GeneratingPolicy or ImageValidatingPolicy (policies.kyverno.io), see https://kyverno.io/docs/guides/migration-to-cel/
+  Warning: ../policies/require-readonly-rootfs.yaml: kyverno.io/v1 ClusterPolicy is deprecated and will be removed in a future release; migrate to ValidatingPolicy, MutatingPolicy, GeneratingPolicy or ImageValidatingPolicy (policies.kyverno.io), see https://kyverno.io/docs/guides/migration-to-cel/
+  Warning: ../policies/disallow-privilege-escalation.yaml: kyverno.io/v1 ClusterPolicy is deprecated and will be removed in a future release; migrate to ValidatingPolicy, MutatingPolicy, GeneratingPolicy or ImageValidatingPolicy (policies.kyverno.io), see https://kyverno.io/docs/guides/migration-to-cel/
+  Warning: ../policies/require-resource-limits.yaml: kyverno.io/v1 ClusterPolicy is deprecated and will be removed in a future release; migrate to ValidatingPolicy, MutatingPolicy, GeneratingPolicy or ImageValidatingPolicy (policies.kyverno.io), see https://kyverno.io/docs/guides/migration-to-cel/
+  Warning: ../policies/require-liveness-readiness-probes.yaml: kyverno.io/v1 ClusterPolicy is deprecated and will be removed in a future release; migrate to ValidatingPolicy, MutatingPolicy, GeneratingPolicy or ImageValidatingPolicy (policies.kyverno.io), see https://kyverno.io/docs/guides/migration-to-cel/
+  Warning: ../policies/restrict-image-registries.yaml: kyverno.io/v1 ClusterPolicy is deprecated and will be removed in a future release; migrate to ValidatingPolicy, MutatingPolicy, GeneratingPolicy or ImageValidatingPolicy (policies.kyverno.io), see https://kyverno.io/docs/guides/migration-to-cel/
+  Loading resources ...
+  Loading exceptions ...
+  Applying 6 policies to 8 resources with 0 exceptions ...
+  Checking results ...
+
+│──────────│───────────────────────────────────│───────────────────────────────────────│─────────────────────────────────────────────────────────────│────────│────────│
+│ ID (48)  │ POLICY                            │ RULE                                  │ RESOURCE                                                    │ RESULT │ REASON │
+│──────────│───────────────────────────────────│───────────────────────────────────────│─────────────────────────────────────────────────────────────│────────│────────│
+│ 1        │ require-run-as-nonroot            │ autogen-run-as-non-root               │ apps/v1/Deployment/default/carts-compliant                  │ Pass   │ Ok     │
+│ 2        │ require-run-as-nonroot            │ autogen-run-as-non-root               │ apps/v1/Deployment/default/carts-violate-writable-fs        │ Pass   │ Ok     │
+│ 3        │ require-run-as-nonroot            │ autogen-run-as-non-root               │ apps/v1/Deployment/default/carts-violate-priv-escalation    │ Pass   │ Ok     │
+│ 4        │ require-run-as-nonroot            │ autogen-run-as-non-root               │ apps/v1/Deployment/default/carts-violate-missing-cpu-limit  │ Pass   │ Ok     │
+│ 5        │ require-run-as-nonroot            │ autogen-run-as-non-root               │ apps/v1/Deployment/default/carts-violate-missing-liveness   │ Pass   │ Ok     │
+│ 6        │ require-run-as-nonroot            │ autogen-run-as-non-root               │ apps/v1/Deployment/default/carts-violate-missing-readiness  │ Pass   │ Ok     │
+│ 7        │ require-run-as-nonroot            │ autogen-run-as-non-root               │ apps/v1/Deployment/default/carts-violate-untrusted-registry │ Pass   │ Ok     │
+│ 8        │ require-run-as-nonroot            │ autogen-run-as-non-root               │ apps/v1/Deployment/default/carts-violate-root               │ Pass   │ Ok     │
+│ 9        │ require-readonly-rootfs           │ autogen-read-only-root-filesystem     │ apps/v1/Deployment/default/carts-compliant                  │ Pass   │ Ok     │
+│ 10       │ require-readonly-rootfs           │ autogen-read-only-root-filesystem     │ apps/v1/Deployment/default/carts-violate-root               │ Pass   │ Ok     │
+│ 11       │ require-readonly-rootfs           │ autogen-read-only-root-filesystem     │ apps/v1/Deployment/default/carts-violate-priv-escalation    │ Pass   │ Ok     │
+│ 12       │ require-readonly-rootfs           │ autogen-read-only-root-filesystem     │ apps/v1/Deployment/default/carts-violate-missing-cpu-limit  │ Pass   │ Ok     │
+│ 13       │ require-readonly-rootfs           │ autogen-read-only-root-filesystem     │ apps/v1/Deployment/default/carts-violate-missing-liveness   │ Pass   │ Ok     │
+│ 14       │ require-readonly-rootfs           │ autogen-read-only-root-filesystem     │ apps/v1/Deployment/default/carts-violate-missing-readiness  │ Pass   │ Ok     │
+│ 15       │ require-readonly-rootfs           │ autogen-read-only-root-filesystem     │ apps/v1/Deployment/default/carts-violate-untrusted-registry │ Pass   │ Ok     │
+│ 16       │ require-readonly-rootfs           │ autogen-read-only-root-filesystem     │ apps/v1/Deployment/default/carts-violate-writable-fs        │ Pass   │ Ok     │
+│ 17       │ disallow-privilege-escalation     │ autogen-disallow-privilege-escalation │ apps/v1/Deployment/default/carts-compliant                  │ Pass   │ Ok     │
+│ 18       │ disallow-privilege-escalation     │ autogen-disallow-privilege-escalation │ apps/v1/Deployment/default/carts-violate-root               │ Pass   │ Ok     │
+│ 19       │ disallow-privilege-escalation     │ autogen-disallow-privilege-escalation │ apps/v1/Deployment/default/carts-violate-writable-fs        │ Pass   │ Ok     │
+│ 20       │ disallow-privilege-escalation     │ autogen-disallow-privilege-escalation │ apps/v1/Deployment/default/carts-violate-missing-cpu-limit  │ Pass   │ Ok     │
+│ 21       │ disallow-privilege-escalation     │ autogen-disallow-privilege-escalation │ apps/v1/Deployment/default/carts-violate-missing-liveness   │ Pass   │ Ok     │
+│ 22       │ disallow-privilege-escalation     │ autogen-disallow-privilege-escalation │ apps/v1/Deployment/default/carts-violate-missing-readiness  │ Pass   │ Ok     │
+│ 23       │ disallow-privilege-escalation     │ autogen-disallow-privilege-escalation │ apps/v1/Deployment/default/carts-violate-untrusted-registry │ Pass   │ Ok     │
+│ 24       │ disallow-privilege-escalation     │ autogen-disallow-privilege-escalation │ apps/v1/Deployment/default/carts-violate-priv-escalation    │ Pass   │ Ok     │
+│ 25       │ require-resource-limits           │ autogen-require-cpu-memory-limits     │ apps/v1/Deployment/default/carts-compliant                  │ Pass   │ Ok     │
+│ 26       │ require-resource-limits           │ autogen-require-cpu-memory-limits     │ apps/v1/Deployment/default/carts-violate-root               │ Pass   │ Ok     │
+│ 27       │ require-resource-limits           │ autogen-require-cpu-memory-limits     │ apps/v1/Deployment/default/carts-violate-writable-fs        │ Pass   │ Ok     │
+│ 28       │ require-resource-limits           │ autogen-require-cpu-memory-limits     │ apps/v1/Deployment/default/carts-violate-priv-escalation    │ Pass   │ Ok     │
+│ 29       │ require-resource-limits           │ autogen-require-cpu-memory-limits     │ apps/v1/Deployment/default/carts-violate-missing-liveness   │ Pass   │ Ok     │
+│ 30       │ require-resource-limits           │ autogen-require-cpu-memory-limits     │ apps/v1/Deployment/default/carts-violate-missing-readiness  │ Pass   │ Ok     │
+│ 31       │ require-resource-limits           │ autogen-require-cpu-memory-limits     │ apps/v1/Deployment/default/carts-violate-untrusted-registry │ Pass   │ Ok     │
+│ 32       │ require-resource-limits           │ autogen-require-cpu-memory-limits     │ apps/v1/Deployment/default/carts-violate-missing-cpu-limit  │ Pass   │ Ok     │
+│ 33       │ require-liveness-readiness-probes │ autogen-require-both-probes           │ apps/v1/Deployment/default/carts-compliant                  │ Pass   │ Ok     │
+│ 34       │ require-liveness-readiness-probes │ autogen-require-both-probes           │ apps/v1/Deployment/default/carts-violate-root               │ Pass   │ Ok     │
+│ 35       │ require-liveness-readiness-probes │ autogen-require-both-probes           │ apps/v1/Deployment/default/carts-violate-writable-fs        │ Pass   │ Ok     │
+│ 36       │ require-liveness-readiness-probes │ autogen-require-both-probes           │ apps/v1/Deployment/default/carts-violate-priv-escalation    │ Pass   │ Ok     │
+│ 37       │ require-liveness-readiness-probes │ autogen-require-both-probes           │ apps/v1/Deployment/default/carts-violate-missing-cpu-limit  │ Pass   │ Ok     │
+│ 38       │ require-liveness-readiness-probes │ autogen-require-both-probes           │ apps/v1/Deployment/default/carts-violate-untrusted-registry │ Pass   │ Ok     │
+│ 39       │ require-liveness-readiness-probes │ autogen-require-both-probes           │ apps/v1/Deployment/default/carts-violate-missing-liveness   │ Pass   │ Ok     │
+│ 40       │ require-liveness-readiness-probes │ autogen-require-both-probes           │ apps/v1/Deployment/default/carts-violate-missing-readiness  │ Pass   │ Ok     │
+│ 41       │ restrict-image-registries         │ autogen-restrict-to-group-registry    │ apps/v1/Deployment/default/carts-compliant                  │ Pass   │ Ok     │
+│ 42       │ restrict-image-registries         │ autogen-restrict-to-group-registry    │ apps/v1/Deployment/default/carts-violate-root               │ Pass   │ Ok     │
+│ 43       │ restrict-image-registries         │ autogen-restrict-to-group-registry    │ apps/v1/Deployment/default/carts-violate-writable-fs        │ Pass   │ Ok     │
+│ 44       │ restrict-image-registries         │ autogen-restrict-to-group-registry    │ apps/v1/Deployment/default/carts-violate-priv-escalation    │ Pass   │ Ok     │
+│ 45       │ restrict-image-registries         │ autogen-restrict-to-group-registry    │ apps/v1/Deployment/default/carts-violate-missing-cpu-limit  │ Pass   │ Ok     │
+│ 46       │ restrict-image-registries         │ autogen-restrict-to-group-registry    │ apps/v1/Deployment/default/carts-violate-missing-liveness   │ Pass   │ Ok     │
+│ 47       │ restrict-image-registries         │ autogen-restrict-to-group-registry    │ apps/v1/Deployment/default/carts-violate-missing-readiness  │ Pass   │ Ok     │
+│ 48       │ restrict-image-registries         │ autogen-restrict-to-group-registry    │ apps/v1/Deployment/default/carts-violate-untrusted-registry │ Pass   │ Ok     │
+│──────────│───────────────────────────────────│───────────────────────────────────────│─────────────────────────────────────────────────────────────│────────│────────│
+
+
+Test Summary: 48 tests passed and 0 tests failed
+
