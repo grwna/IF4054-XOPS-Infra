@@ -1,0 +1,41 @@
+apiVersion: kyverno.io/v1
+kind: ClusterPolicy
+metadata:
+  name: require-liveness-readiness-probes
+  annotations:
+    policies.kyverno.io/title: Require Liveness and Readiness Probes
+    policies.kyverno.io/category: Best Practices
+    policies.kyverno.io/severity: medium
+    policies.kyverno.io/subject: Pod
+    pod-policies.kyverno.io/autogen-controllers: Deployment
+    policies.kyverno.io/description: >-
+      Spec requirement 3.c: "Setiap deployment harus memiliki liveness probe
+      dan readiness probe agar kesiapan aplikasi dapat dipastikan." Both
+      probes are required together; Kyverno's own official "require-probes"
+      example only requires one-of-three probe types, which is not strict
+      enough for this requirement, so this policy is written independently to
+      require both explicitly.
+spec:
+  validationFailureAction: Enforce
+  background: true
+  rules:
+    - name: require-both-probes
+      match:
+        any:
+          - resources:
+              kinds:
+                - Pod
+      exclude:
+        any:
+          - resources:
+              namespaces:
+                - kube-system
+                - kyverno
+      validate:
+        message: >-
+          Container must define both livenessProbe and readinessProbe.
+        pattern:
+          spec:
+            containers:
+              - livenessProbe: {}
+                readinessProbe: {}

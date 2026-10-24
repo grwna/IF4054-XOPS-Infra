@@ -1,0 +1,40 @@
+apiVersion: kyverno.io/v1
+kind: ClusterPolicy
+metadata:
+  name: disallow-privilege-escalation
+  annotations:
+    policies.kyverno.io/title: Disallow Privilege Escalation
+    policies.kyverno.io/category: Pod Security Standards (Restricted)
+    policies.kyverno.io/severity: high
+    policies.kyverno.io/subject: Pod
+    pod-policies.kyverno.io/autogen-controllers: Deployment
+    policies.kyverno.io/description: >-
+      Spec requirement 3.d: "Container dilarang melakukan privilege
+      escalation." Every container must explicitly set
+      securityContext.allowPrivilegeEscalation=false. A missing field is
+      rejected too, since the Kubernetes default for this field is true.
+spec:
+  validationFailureAction: Enforce
+  background: true
+  rules:
+    - name: disallow-privilege-escalation
+      match:
+        any:
+          - resources:
+              kinds:
+                - Pod
+      exclude:
+        any:
+          - resources:
+              namespaces:
+                - kube-system
+                - kyverno
+      validate:
+        message: >-
+          Container must set securityContext.allowPrivilegeEscalation=false
+          explicitly on every container.
+        pattern:
+          spec:
+            containers:
+              - securityContext:
+                  allowPrivilegeEscalation: false
