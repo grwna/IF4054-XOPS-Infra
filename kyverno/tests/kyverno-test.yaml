@@ -1,0 +1,129 @@
+apiVersion: cli.kyverno.io/v1alpha1
+kind: Test
+metadata:
+  name: policy-enforcement-tests
+policies:
+  - ../policies/require-run-as-nonroot.yaml
+  - ../policies/require-readonly-rootfs.yaml
+  - ../policies/disallow-privilege-escalation.yaml
+  - ../policies/require-resource-limits.yaml
+  - ../policies/require-liveness-readiness-probes.yaml
+  - ../policies/restrict-image-registries.yaml
+resources:
+  - resources/compliant.yaml
+  - resources/violate-root.yaml
+  - resources/violate-writable-fs.yaml
+  - resources/violate-priv-escalation.yaml
+  - resources/violate-missing-cpu-limit.yaml
+  - resources/violate-missing-liveness.yaml
+  - resources/violate-missing-readiness.yaml
+  - resources/violate-untrusted-registry.yaml
+results:
+  - policy: require-run-as-nonroot
+    rule: autogen-run-as-non-root
+    resources:
+      - carts-compliant
+      - carts-violate-writable-fs
+      - carts-violate-priv-escalation
+      - carts-violate-missing-cpu-limit
+      - carts-violate-missing-liveness
+      - carts-violate-missing-readiness
+      - carts-violate-untrusted-registry
+    kind: Deployment
+    result: pass
+  - policy: require-run-as-nonroot
+    rule: autogen-run-as-non-root
+    resources:
+      - carts-violate-root
+    kind: Deployment
+    result: fail
+  - policy: require-readonly-rootfs
+    rule: autogen-read-only-root-filesystem
+    resources:
+      - carts-compliant
+      - carts-violate-root
+      - carts-violate-priv-escalation
+      - carts-violate-missing-cpu-limit
+      - carts-violate-missing-liveness
+      - carts-violate-missing-readiness
+      - carts-violate-untrusted-registry
+    kind: Deployment
+    result: pass
+  - policy: require-readonly-rootfs
+    rule: autogen-read-only-root-filesystem
+    resources:
+      - carts-violate-writable-fs
+    kind: Deployment
+    result: fail
+  - policy: disallow-privilege-escalation
+    rule: autogen-disallow-privilege-escalation
+    resources:
+      - carts-compliant
+      - carts-violate-root
+      - carts-violate-writable-fs
+      - carts-violate-missing-cpu-limit
+      - carts-violate-missing-liveness
+      - carts-violate-missing-readiness
+      - carts-violate-untrusted-registry
+    kind: Deployment
+    result: pass
+  - policy: disallow-privilege-escalation
+    rule: autogen-disallow-privilege-escalation
+    resources:
+      - carts-violate-priv-escalation
+    kind: Deployment
+    result: fail
+  - policy: require-resource-limits
+    rule: autogen-require-cpu-memory-limits
+    resources:
+      - carts-compliant
+      - carts-violate-root
+      - carts-violate-writable-fs
+      - carts-violate-priv-escalation
+      - carts-violate-missing-liveness
+      - carts-violate-missing-readiness
+      - carts-violate-untrusted-registry
+    kind: Deployment
+    result: pass
+  - policy: require-resource-limits
+    rule: autogen-require-cpu-memory-limits
+    resources:
+      - carts-violate-missing-cpu-limit
+    kind: Deployment
+    result: fail
+  - policy: require-liveness-readiness-probes
+    rule: autogen-require-both-probes
+    resources:
+      - carts-compliant
+      - carts-violate-root
+      - carts-violate-writable-fs
+      - carts-violate-priv-escalation
+      - carts-violate-missing-cpu-limit
+      - carts-violate-untrusted-registry
+    kind: Deployment
+    result: pass
+  - policy: require-liveness-readiness-probes
+    rule: autogen-require-both-probes
+    resources:
+      - carts-violate-missing-liveness
+      - carts-violate-missing-readiness
+    kind: Deployment
+    result: fail
+  - policy: restrict-image-registries
+    rule: autogen-restrict-to-group-registry
+    resources:
+      - carts-compliant
+      - carts-violate-root
+      - carts-violate-writable-fs
+      - carts-violate-priv-escalation
+      - carts-violate-missing-cpu-limit
+      - carts-violate-missing-liveness
+      - carts-violate-missing-readiness
+    kind: Deployment
+    result: pass
+  - policy: restrict-image-registries
+    rule: autogen-restrict-to-group-registry
+    resources:
+      - carts-violate-untrusted-registry
+    kind: Deployment
+    result: fail
