@@ -1,4 +1,8 @@
 terraform {
+  backend "local" {
+    path = "/root/tfstate/terraform.tfstate"
+  }
+
   required_providers {
     kind = {
       source  = "tehcyx/kind"
@@ -29,7 +33,27 @@ provider "helm" {
 resource "kind_cluster" "xops" {
   name           = "xops"
   wait_for_ready = true
-  kind_config    = file("cluster.yaml")
+
+  kind_config {
+    kind        = "Cluster"
+    api_version = "kind.x-k8s.io/v1alpha4"
+
+    node {
+      role = "control-plane"
+
+      extra_port_mappings {
+        container_port = 80
+        host_port      = 80
+        protocol       = "TCP"
+      }
+
+      extra_port_mappings {
+        container_port = 443
+        host_port      = 443
+        protocol       = "TCP"
+      }
+    }
+  }
 }
 
 # --- Namespaces ---
@@ -48,11 +72,23 @@ resource "helm_release" "ingress_nginx" {
   chart            = "ingress-nginx"
   namespace        = "ingress-nginx"
   create_namespace = true
+  timeout          = 900
+  cleanup_on_fail  = true
   depends_on       = [kind_cluster.xops]
 
   set {
     name  = "controller.hostPort.enabled"
     value = "true"
+  }
+
+  set {
+    name = "controller.service.type"
+    value = "NodePort"
+  }
+
+  set {
+    name  = "controller.admissionWebhooks.enabled"
+    value = "false"
   }
 }
 
@@ -63,7 +99,8 @@ resource "helm_release" "kyverno" {
   chart            = "kyverno"
   namespace        = "kyverno"
   create_namespace = true
-  wait             = true
+  timeout          = 900
+  cleanup_on_fail  = true
   depends_on       = [kind_cluster.xops]
 }
 
@@ -73,7 +110,8 @@ resource "helm_release" "metrics_server" {
   repository       = "https://kubernetes-sigs.github.io/metrics-server/"
   chart            = "metrics-server"
   namespace        = "kube-system"
-  wait             = true
+  timeout          = 900
+  cleanup_on_fail  = true
   depends_on       = [kind_cluster.xops]
 
   set {

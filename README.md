@@ -14,10 +14,10 @@
 
 ## Bootstrap vs Pipeline
 
-**Day 0 (once, manual):** ansible installs host tools + registers runner; terraform creates cluster + platform.
-**Day 1+ (every push):** runner picks job, pipeline applies Kyverno policies + deploys Helm chart (dev auto, prod manual gate).
+**Day 0 (once, manual):** ansible installs host tools + registers runner. Host is bootstrapper concern — can't be in CI because runner must exist before any job runs.
+**Day 1+ (every push):** pipeline deploys ALL infra via CI/CD (spec requirement): terraform (cluster/platform), Kyverno policies, Helm chart (dev auto, prod manual gate).
 
-Pipeline never re-runs ansible (job container `localhost` != host). Terraform state lives on host - pipeline does not run terraform, so runner/ansible/cloudflared untouched. Safe.
+Terraform state on host (`/root/tfstate`, mounted into runner jobs) — persists across runs, no cluster recreate. Ansible/cloudflared/runner config never touched by pipeline.
 
 ## How to Use
 
@@ -34,26 +34,28 @@ chmod +x init.sh && sudo ./init.sh
 
 - Fill `vars.yaml` (copy `vars-example.yaml`, set `cf_token` + `gitlab_token` glrt- runner token), then:
 ```bash
-ansible-playbook server-setup.yaml --ask-become-pass
+sudo ansible-playbook server-setup.yaml
 ```
 
 - Verify tools + runner container:
 ```bash
 kubectl version --client
 kind --version
+terraform version
 docker ps
 ```
 
-- Create cluster + platform (kind, namespaces, ingress-nginx, Kyverno, metrics-server):
+Cluster + platform (kind, namespaces, ingress-nginx, Kyverno, metrics-server) is created by the **pipeline** on first push (`terraform_apply` job) — no manual terraform needed. Fallback if CI bootstrap fails, run locally:
 ```bash
 sudo terraform init
+sudo terraform apply -target=kind_cluster.xops -auto-approve
 sudo terraform apply -auto-approve
 ```
 
-Note: first ever `terraform apply` may fail plan (kubeconfig not yet on disk). If so:
+Note: runner must be **re-registered** once after `/root/tfstate` mount was added (jobs need the volume):
 ```bash
-sudo terraform apply -target=kind_cluster.xops
-sudo terraform apply -auto-approve
+docker exec gitlab-runner gitlab-runner unregister --all-runners
+sudo ansible-playbook server-setup.yaml
 ```
 
 ### Restart after shutdown
@@ -68,9 +70,10 @@ Starts docker, kind node, gitlab-runner, cloudflared. See comments in `start.sh`
 
 Push to repo. Runner (same host) picks jobs. Stages:
 1. `validate` - kyverno CLI test on policies
-2. `deploy-infra` - kubectl apply Kyverno ClusterPolicies
-3. `deploy-dev` - helm upgrade to `dev` namespace (auto)
-4. `deploy-prod` - helm upgrade to `prod` (manual gate, `main` only)
+2. `deploy-cluster` - terraform apply (kind + ns + ingress-nginx + Kyverno + metrics-server)
+3. `deploy-infra` - kubectl apply Kyverno ClusterPolicies
+4. `deploy-dev` - helm upgrade to `dev` namespace (auto)
+5. `deploy-prod` - helm upgrade to `prod` (manual gate, `main` only)
 
 If jobs stuck "no runner": runner must have tag `xops` (GitLab UI > Settings > CI/CD > Runners > Edit runner > Tags).
 

@@ -8,6 +8,7 @@
   vars:
     kubectl_version: "v1.31.0"
     kind_version: "v0.24.0"
+    kyverno_cli_version: "v1.19.2"
     gitlab_url: "https://gitlab-edu.itb.ac.id"
 
   tasks:
@@ -17,6 +18,12 @@
         name: [curl, tar, docker.io, python3-docker]
         state: present
         update_cache: yes
+
+    - name: Ensure user is in the docker group
+      user:
+        name: xops
+        groups: docker
+        append: yes
 
     # --- Install and setup cloudflare tunnels ---
     - name: Download cloudflared deb package
@@ -46,6 +53,24 @@
         dest: /usr/local/bin/kind
         mode: '0755'
 
+    - name: Download and de-armor HashiCorp GPG key
+      shell: |
+        curl -fsSL https://apt.releases.hashicorp.com/gpg | gpg --dearmor -o /usr/share/keyrings/hashicorp-archive-keyring.gpg
+      args:
+        creates: /usr/share/keyrings/hashicorp-archive-keyring.gpg
+
+    - name: Add HashiCorp repository
+      apt_repository:
+        repo: "deb [signed-by=/usr/share/keyrings/hashicorp-archive-keyring.gpg] https://apt.releases.hashicorp.com noble main"
+        state: present
+        filename: hashicorp
+
+    - name: Install Terraform via apt
+      apt:
+        name: terraform
+        state: present
+        update_cache: yes
+
     - name: Install Helm via official script
       shell: |
         curl -fsSL https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3 | bash
@@ -54,11 +79,13 @@
 
     - name: Install Kyverno CLI
       unarchive:
-        src: "https://github.com/kyverno/kyverno/releases/latest/download/kyverno-cli_linux_x86_64.tar.gz"
+        src: "https://github.com/kyverno/kyverno/releases/download/{{ kyverno_cli_version }}/kyverno-cli_{{ kyverno_cli_version }}_linux_x86_64.tar.gz"
         dest: /usr/local/bin/
         remote_src: yes
         mode: '0755'
         extra_opts: ['kyverno']
+      args:
+        creates: /usr/local/bin/kyverno
 
     # --- Docker Workloads ---
     - name: Run GitLab Runner container
@@ -71,6 +98,7 @@
           - /var/run/docker.sock:/var/run/docker.sock
           - gitlab-runner-config:/etc/gitlab-runner
           - /root/.kube:/root/.kube
+          - /root/tfstate:/root/tfstate
 
     - name: Check runner registration state
       command: docker exec gitlab-runner cat /etc/gitlab-runner/config.toml
@@ -88,6 +116,7 @@
         --docker-image "alpine:latest"
         --docker-volumes "/var/run/docker.sock:/var/run/docker.sock"
         --docker-volumes "/root/.kube:/root/.kube"
+        --docker-volumes "/root/tfstate:/root/tfstate"
         --docker-network-mode "host"
         --description "wsl-kind-runner"
       when: "'[[runners]]' not in runner_cfg.stdout"
