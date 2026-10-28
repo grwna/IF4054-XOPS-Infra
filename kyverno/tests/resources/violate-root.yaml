@@ -52,7 +52,7 @@ spec:
             readOnlyRootFilesystem: true
             runAsNonRoot: false
             runAsUser: 1000
-          image: "registry.gitlab-edu.itb.ac.id/if4054-2026-t1-13523035-13523095-13523106/retail-store-app-xops/cart:latest"
+          image: "docker.io/starath/retail-store-cart:latest"
           imagePullPolicy: IfNotPresent
           ports:
             - name: http
