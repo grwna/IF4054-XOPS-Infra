@@ -1,0 +1,24 @@
+services:
+  # Helm CLI container
+  helm:
+    image: alpine/helm:3.16.2
+    volumes:
+      - .:/workspace
+    working_dir: /workspace
+    entrypoint: ["helm"]
+
+  # Kyverno CLI container
+  kyverno:
+    image: ghcr.io/kyverno/kyverno-cli:v1.19.2
+    volumes:
+      - .:/workspace
+    working_dir: /workspace
+    entrypoint: ["/ko-app/kubectl-kyverno"]
+
+  # Kubectl CLI container
+  kubectl:
+    image: bitnami/kubectl:latest
+    volumes:
+      - .:/workspace
+    working_dir: /workspace
+    entrypoint: ["kubectl"]
