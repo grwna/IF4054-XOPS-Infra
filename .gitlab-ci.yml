@@ -57,6 +57,7 @@ deploy_dev:
       --set checkout.image.tag=${APP_IMAGE_TAG:-$CI_COMMIT_SHORT_SHA}
       --set orders.image.tag=${APP_IMAGE_TAG:-$CI_COMMIT_SHORT_SHA}
       --set ui.image.tag=${APP_IMAGE_TAG:-$CI_COMMIT_SHORT_SHA}
+
   environment:
     name: dev
   rules:

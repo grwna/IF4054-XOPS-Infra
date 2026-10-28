@@ -20,12 +20,18 @@ terraform {
 }
 
 provider "kubernetes" {
-  config_path = "~/.kube/config"
+  host                   = kind_cluster.xops.endpoint
+  client_certificate     = kind_cluster.xops.client_certificate
+  client_key             = kind_cluster.xops.client_key
+  cluster_ca_certificate = kind_cluster.xops.cluster_ca_certificate
 }
 
 provider "helm" {
   kubernetes {
-    config_path = "~/.kube/config"
+    host                   = kind_cluster.xops.endpoint
+    client_certificate     = kind_cluster.xops.client_certificate
+    client_key             = kind_cluster.xops.client_key
+    cluster_ca_certificate = kind_cluster.xops.cluster_ca_certificate
   }
 }
 

@@ -28,6 +28,16 @@ else
   echo "kind node container not found — cluster not created yet. Run day 0: sudo terraform apply"
 fi
 
+echo "Refreshing kubeconfig for xops cluster..."
+kind export kubeconfig --name xops
+
+if [ -n "${SUDO_USER:-}" ]; then
+  USER_HOME=$(getent passwd "$SUDO_USER" | cut -d: -f6)
+  mkdir -p "$USER_HOME/.kube"
+  cp /root/.kube/config "$USER_HOME/.kube/config"
+  chown -R "$SUDO_USER:" "$USER_HOME/.kube"
+fi
+
 echo "Starting gitlab-runner..."
 if docker ps -a --format '{{.Names}}' | grep -qx 'gitlab-runner'; then
   docker start gitlab-runner
@@ -42,10 +52,22 @@ else
   echo "cloudflared unit not installed — run ansible-playbook server-setup.yaml first"
 fi
 
-echo
-echo "Waiting for kubernetes node..."
-sleep 5
-kubectl get nodes || true
+# Ensure non-root user owns the kubeconfig if run via sudo
+if [ -n "${SUDO_USER:-}" ]; then
+  USER_HOME=$(getent passwd "$SUDO_USER" | cut -d: -f6)
+  kind export kubeconfig --name xops --kubeconfig "$USER_HOME/.kube/config"
+  chown "$SUDO_USER:" "$USER_HOME/.kube/config"
+fi
+
+echo "Waiting for Kubernetes API server to become ready..."
+until kubectl get nodes --request-timeout='5s' &>/dev/null; do
+  echo "API server not ready yet. Retrying in 5 seconds..."
+  sleep 5
+done
+
+echo "Node status:"
+kubectl get nodes
+
 
 echo
 echo "Done. Verify pods: kubectl get pods -A"
