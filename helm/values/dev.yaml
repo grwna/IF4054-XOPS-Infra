@@ -10,7 +10,7 @@
 
 cart:
   image:
-    repository: registry.gitlab-edu.itb.ac.id/if4054-2026-t1-13523035-13523095-13523106/retail-store-app-xops/cart
+    repository: starath/retail-store-cart
     tag: latest
     pullPolicy: Always
   autoscaling:
@@ -21,7 +21,7 @@ cart:
 
 catalog:
   image:
-    repository: registry.gitlab-edu.itb.ac.id/if4054-2026-t1-13523035-13523095-13523106/retail-store-app-xops/catalog
+    repository: starath/retail-store-catalog
     tag: latest
     pullPolicy: Always
   autoscaling:
@@ -32,7 +32,7 @@ catalog:
 
 checkout:
   image:
-    repository: registry.gitlab-edu.itb.ac.id/if4054-2026-t1-13523035-13523095-13523106/retail-store-app-xops/checkout
+    repository: starath/retail-store-checkout
     tag: latest
     pullPolicy: Always
   autoscaling:
@@ -43,7 +43,7 @@ checkout:
 
 orders:
   image:
-    repository: registry.gitlab-edu.itb.ac.id/if4054-2026-t1-13523035-13523095-13523106/retail-store-app-xops/orders
+    repository: starath/retail-store-orders
     tag: latest
     pullPolicy: Always
   autoscaling:
@@ -54,7 +54,7 @@ orders:
 
 ui:
   image:
-    repository: registry.gitlab-edu.itb.ac.id/if4054-2026-t1-13523035-13523095-13523106/retail-store-app-xops/ui
+    repository: starath/retail-store-ui
     tag: latest
     pullPolicy: Always
   autoscaling:

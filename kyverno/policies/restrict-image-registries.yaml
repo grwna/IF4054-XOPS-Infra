@@ -11,9 +11,8 @@ metadata:
     policies.kyverno.io/description: >-
       Spec requirement 3.b: "Image yang boleh dijalankan di cluster hanya
       yang berasal dari repositori Anda." Every container image must come
-      from this group's GitLab Container Registry path; images from Docker
-      Hub, public ECR, or any other group's registry path are rejected.
-      Update REGISTRY_PREFIX below if the group registry path changes.
+      from this team's Docker repository (starath/retail-store-*); images from
+      Docker Hub library, public ECR, or any other unauthorized path are rejected.
 spec:
   validationFailureAction: Enforce
   background: true
@@ -32,9 +31,11 @@ spec:
                 - kyverno
       validate:
         message: >-
-          Container image must come from this group's registry:
-          registry.gitlab-edu.itb.ac.id/if4054-2026-t1-13523035-13523095-13523106/retail-store-app-xops/*
-        pattern:
-          spec:
-            containers:
-              - image: "registry.gitlab-edu.itb.ac.id/if4054-2026-t1-13523035-13523095-13523106/retail-store-app-xops/*"
+          Container image must come from this team's registry: starath/retail-store-*
+        anyPattern:
+          - spec:
+              containers:
+                - image: "starath/retail-store-*"
+          - spec:
+              containers:
+                - image: "*starath/retail-store-*"

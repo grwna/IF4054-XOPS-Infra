@@ -11,8 +11,8 @@
 
 cart:
   image:
-    repository: registry.gitlab-edu.itb.ac.id/if4054-2026-t1-13523035-13523095-13523106/retail-store-app-xops/cart
-    tag: "1.6.3"
+    repository: starath/retail-store-cart
+    tag: "6d89e76df85249c2b4de00a3c2515ec4e5c39f0e"
   autoscaling:
     enabled: true
     minReplicas: 2
@@ -21,8 +21,8 @@ cart:
 
 catalog:
   image:
-    repository: registry.gitlab-edu.itb.ac.id/if4054-2026-t1-13523035-13523095-13523106/retail-store-app-xops/catalog
-    tag: "1.6.3"
+    repository: starath/retail-store-catalog
+    tag: "6d89e76df85249c2b4de00a3c2515ec4e5c39f0e"
   autoscaling:
     enabled: true
     minReplicas: 2
@@ -31,8 +31,8 @@ catalog:
 
 checkout:
   image:
-    repository: registry.gitlab-edu.itb.ac.id/if4054-2026-t1-13523035-13523095-13523106/retail-store-app-xops/checkout
-    tag: "1.6.3"
+    repository: starath/retail-store-checkout
+    tag: "6d89e76df85249c2b4de00a3c2515ec4e5c39f0e"
   autoscaling:
     enabled: true
     minReplicas: 2
@@ -41,8 +41,8 @@ checkout:
 
 orders:
   image:
-    repository: registry.gitlab-edu.itb.ac.id/if4054-2026-t1-13523035-13523095-13523106/retail-store-app-xops/orders
-    tag: "1.6.3"
+    repository: starath/retail-store-orders
+    tag: "6d89e76df85249c2b4de00a3c2515ec4e5c39f0e"
   autoscaling:
     enabled: true
     minReplicas: 2
@@ -51,8 +51,8 @@ orders:
 
 ui:
   image:
-    repository: registry.gitlab-edu.itb.ac.id/if4054-2026-t1-13523035-13523095-13523106/retail-store-app-xops/ui
-    tag: "1.6.3"
+    repository: starath/retail-store-ui
+    tag: "6d89e76df85249c2b4de00a3c2515ec4e5c39f0e"
   autoscaling:
     enabled: true
     minReplicas: 2
