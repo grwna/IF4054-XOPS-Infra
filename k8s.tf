@@ -1,6 +1,6 @@
 terraform {
   backend "local" {
-    path = "/root/tfstate/terraform.tfstate"
+    path = "/home/xops/IF4054-XOPS-Infra/terraform.tfstate"
   }
 
   required_providers {

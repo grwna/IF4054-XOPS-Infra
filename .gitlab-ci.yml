@@ -22,7 +22,7 @@ validate_policies:
     - kyverno test ./kyverno/tests/
 
 # Terraform: cluster + namespaces + ingress-nginx + kyverno + metrics-server
-# State persists on host via /root/tfstate mount (k8s.tf backend + server-setup.yaml runner volumes)
+# State persists on the xops host project directory via the server-setup.yaml runner volume.
 terraform_apply:
   stage: deploy-cluster
   image: hashicorp/terraform:1.17
@@ -31,7 +31,7 @@ terraform_apply:
   script:
     - wget -qO /usr/local/bin/kind https://kind.sigs.k8s.io/dl/v0.24.0/kind-linux-amd64
     - chmod +x /usr/local/bin/kind
-    - export TF_DATA_DIR=/root/tfstate/.terraform-cache
+    - export TF_DATA_DIR=/home/xops/IF4054-XOPS-Infra/.terraform-cache
     - terraform init
     - terraform apply -target=kind_cluster.xops -auto-approve
     - terraform apply -auto-approve
