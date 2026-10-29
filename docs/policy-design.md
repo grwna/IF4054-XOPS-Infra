@@ -45,7 +45,7 @@ Checked directly against `src/<service>/chart/templates/deployment.yaml` and
 | CPU **and** memory limits | only `limits.memory` ❌ | added `resources.limits.cpu` to every service's `values.yaml` |
 | Autoscale on load | `hpa.yaml` template present but `autoscaling.enabled: false` ❌ | enabled per environment in `helm/values/{dev,prod}.yaml` with min/max/target CPU |
 | Liveness **and** readiness probe | only `readinessProbe`, hardcoded in the template, no `livenessProbe` field at all ❌ | converted `readinessProbe` to read from `.Values.readinessProbe`, added a new `.Values.livenessProbe` block and a `livenessProbe:` stanza in every `deployment.yaml` |
-| Non-root | `runAsNonRoot: true`, `runAsUser: 1000` ✅ | kept |
+| Non-root | `runAsNonRoot: true`, `runAsUser: 1000` ✅ | kept, then corrected to `10001` — see note below |
 | Read-only root filesystem | `readOnlyRootFilesystem: true` + `emptyDir` for `/tmp` ✅ | kept |
 | No privilege escalation | `allowPrivilegeEscalation` never set ❌ (Kubernetes default is `true`) | added `allowPrivilegeEscalation: false` to every service's `securityContext` in `values.yaml` |
 | Image from own registry | defaults to `public.ecr.aws/aws-containers/...` ❌ | overridden per environment to `docker.io/starath/retail-store-<service>` |
@@ -64,6 +64,16 @@ mutable `:latest` tag: with `IfNotPresent`, a node that already pulled
 `cart:latest` once would never re-pull it again even after a newer image is
 pushed, silently running a stale build. `prod` pins an immutable version tag
 per release, so `IfNotPresent` there is correct and avoids redundant pulls.
+
+`securityContext.runAsUser` and `podSecurityContext.fsGroup` were corrected
+from `1000` (the upstream chart's assumption, matching the original app
+image's `USER appuser`) to `10001`, after the app repo's Dockerfiles were
+rewritten to `useradd --uid 10001 --gid 10001` + `USER 10001` (per the task's
+own `USER 10001` convention). Kubernetes' `securityContext.runAsUser`
+overrides the image's own `USER` directive — leaving it at `1000` would have
+forced every container to run as a UID that doesn't own `/app` (the image's
+home directory and binary location), which is a likely `CrashLoopBackOff`
+from permission errors, not just a cosmetic mismatch.
 
 One upstream quirk worth flagging: each chart's `templates/tests/` directory
 defines a `helm.sh/hook: test` Pod (`<service>-test-connection`) that runs an

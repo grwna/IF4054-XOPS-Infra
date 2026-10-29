@@ -143,7 +143,7 @@ results:
   resources:
   - apiVersion: apps/v1
     kind: Deployment
-    name: carts
+    name: orders
     namespace: default
   result: pass
   rule: autogen-disallow-privilege-escalation
@@ -233,7 +233,7 @@ results:
   resources:
   - apiVersion: apps/v1
     kind: Deployment
-    name: catalog
+    name: ui
     namespace: default
   result: pass
   rule: autogen-read-only-root-filesystem
@@ -272,7 +272,7 @@ results:
     name: orders
     namespace: default
   result: pass
-  rule: autogen-restrict-to-group-registry
+  rule: autogen-run-as-non-root
   scored: true
   severity: high
   source: kyverno

@@ -12,14 +12,14 @@ default:
 variables:
   KUBECONFIG: /root/.kube/config
 
-# Kyverno CLI validation (placeholder policies)
+# Kyverno CLI validation test suite
 validate_policies:
   stage: validate
   image:
-    name: ghcr.io/kyverno/kyverno-cli:latest
+    name: ghcr.io/kyverno/kyverno-cli:v1.19.2
     entrypoint: [""]
   script:
-    - kyverno test ./kyverno-policies/
+    - kyverno test ./kyverno/tests/
 
 # Terraform: cluster + namespaces + ingress-nginx + kyverno + metrics-server
 # State persists on host via /root/tfstate mount (k8s.tf backend + server-setup.yaml runner volumes)
@@ -39,30 +39,47 @@ terraform_apply:
 # Deploy Kyverno ClusterPolicies to cluster
 deploy_infra:
   stage: deploy-infra
-  image: alpine:3.20
+  image: bitnami/kubectl:latest
   script:
-    - apk add --no-cache curl
-    - curl -fsSL -o kubectl "https://dl.k8s.io/release/$(curl -fsSL https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl"
-    - chmod +x kubectl
-    - ./kubectl apply -f kyverno-policies/require-team-label.yaml
+    - kubectl apply -f kyverno/policies/
 
 # Automatic deployment to Dev environment (k8s namespace: dev)
 deploy_dev:
   stage: deploy-dev
-  image: alpine/helm:latest
+  image: alpine/helm:3.16.2
   script:
-    - helm upgrade --install retail-app ./helm-charts/retail-app -n dev --values ./helm-charts/retail-app/values-dev.yaml
+    - helm dependency build ./helm/charts/app
+    - >-
+      helm upgrade --install retail-app ./helm/charts/app -n dev
+      --values ./helm/values/dev.yaml
+      --set cart.image.tag=${APP_IMAGE_TAG:-$CI_COMMIT_SHORT_SHA}
+      --set catalog.image.tag=${APP_IMAGE_TAG:-$CI_COMMIT_SHORT_SHA}
+      --set checkout.image.tag=${APP_IMAGE_TAG:-$CI_COMMIT_SHORT_SHA}
+      --set orders.image.tag=${APP_IMAGE_TAG:-$CI_COMMIT_SHORT_SHA}
+      --set ui.image.tag=${APP_IMAGE_TAG:-$CI_COMMIT_SHORT_SHA}
   environment:
     name: dev
+  rules:
+    - if: '$CI_COMMIT_BRANCH == "dev"'
+    - if: '$CI_PIPELINE_SOURCE == "pipeline"'
 
 # Manual approval gate for Production deployment
 deploy_prod:
   stage: deploy-prod
-  image: alpine/helm:latest
+  image: alpine/helm:3.16.2
   script:
-    - helm upgrade --install retail-app ./helm-charts/retail-app -n prod --values ./helm-charts/retail-app/values-prod.yaml
+    - helm dependency build ./helm/charts/app
+    - >-
+      helm upgrade --install retail-app ./helm/charts/app -n prod
+      --values ./helm/values/prod.yaml
+      --set cart.image.tag=${APP_IMAGE_TAG:-$CI_COMMIT_SHORT_SHA}
+      --set catalog.image.tag=${APP_IMAGE_TAG:-$CI_COMMIT_SHORT_SHA}
+      --set checkout.image.tag=${APP_IMAGE_TAG:-$CI_COMMIT_SHORT_SHA}
+      --set orders.image.tag=${APP_IMAGE_TAG:-$CI_COMMIT_SHORT_SHA}
+      --set ui.image.tag=${APP_IMAGE_TAG:-$CI_COMMIT_SHORT_SHA}
   environment:
     name: prod
-  when: manual  # Enforces mandatory 1-person approval rule
-  only:
-    - main
+  when: manual  # approved by human
+  rules:
+    - if: '$CI_COMMIT_BRANCH == "main"'
+    - if: '$CI_PIPELINE_SOURCE == "pipeline"'

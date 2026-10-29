@@ -1,6 +1,0 @@
-apiVersion: v2
-name: retail-app
-description: Placeholder chart — Member 2 replaces with real manifests
-type: application
-version: 0.1.0
-appVersion: "1.0.0"
