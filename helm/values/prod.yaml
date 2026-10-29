@@ -11,8 +11,8 @@
 
 cart:
   image:
-    repository: starath/retail-store-cart
-    tag: "6d89e76df85249c2b4de00a3c2515ec4e5c39f0e"
+    repository: docker.io/starath/retail-store-cart
+    tag: "1.6.3"
   autoscaling:
     enabled: true
     minReplicas: 2
@@ -21,8 +21,8 @@ cart:
 
 catalog:
   image:
-    repository: starath/retail-store-catalog
-    tag: "6d89e76df85249c2b4de00a3c2515ec4e5c39f0e"
+    repository: docker.io/starath/retail-store-catalog
+    tag: "1.6.3"
   autoscaling:
     enabled: true
     minReplicas: 2
@@ -31,8 +31,8 @@ catalog:
 
 checkout:
   image:
-    repository: starath/retail-store-checkout
-    tag: "6d89e76df85249c2b4de00a3c2515ec4e5c39f0e"
+    repository: docker.io/starath/retail-store-checkout
+    tag: "1.6.3"
   autoscaling:
     enabled: true
     minReplicas: 2
@@ -41,8 +41,8 @@ checkout:
 
 orders:
   image:
-    repository: starath/retail-store-orders
-    tag: "6d89e76df85249c2b4de00a3c2515ec4e5c39f0e"
+    repository: docker.io/starath/retail-store-orders
+    tag: "1.6.3"
   autoscaling:
     enabled: true
     minReplicas: 2
@@ -51,8 +51,8 @@ orders:
 
 ui:
   image:
-    repository: starath/retail-store-ui
-    tag: "6d89e76df85249c2b4de00a3c2515ec4e5c39f0e"
+    repository: docker.io/starath/retail-store-ui
+    tag: "1.6.3"
   autoscaling:
     enabled: true
     minReplicas: 2
