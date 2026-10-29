@@ -17,14 +17,16 @@ validate_policies:
   stage: validate
   image: buildpack-deps:curl
   script:
-    - curl -sL https://github.com/kyverno/kyverno/releases/download/v1.19.2/kyverno-cli_v1.19.2_linux_x86_64.tar.gz | tar -xz -C /usr/local/bin kyverno
+    - curl -L https://github.com/kyverno/kyverno/releases/download/v1.19.2/kyverno-cli_v1.19.2_linux_x86_64.tar.gz | tar -xz -C /usr/local/bin kyverno
     - kyverno test ./kyverno-policies/tests/
 
 # Terraform: cluster + namespaces + ingress-nginx + kyverno + metrics-server
 # State persists on the xops host project directory via the server-setup.yaml runner volume.
 terraform_apply:
   stage: deploy-cluster
-  image: hashicorp/terraform:1.17
+  image: 
+    name: hashicorp/terraform:1.17
+    entrypoint: [""]
   resource_group: terraform
   timeout: 30m
   script:
@@ -40,7 +42,9 @@ terraform_apply:
 # Deploy Kyverno ClusterPolicies to cluster
 deploy_infra:
   stage: deploy-infra
-  image: bitnami/kubectl:latest
+  image: 
+    name: bitnami/kubectl:latest
+    entrypoint: [""]
   script:
     - kubectl apply -f kyverno-policies/policies/
   rules:
@@ -49,7 +53,9 @@ deploy_infra:
 # Automatic deployment to Dev environment (k8s namespace: dev)
 deploy_dev:
   stage: deploy-dev
-  image: alpine/helm:3.16.2
+  image: 
+    name: alpine/helm:3.16.2
+    entrypoint: [""]
   script:
     - helm dependency build ./helm/charts/app
     - >-
@@ -69,7 +75,9 @@ deploy_dev:
 # Manual approval gate for Production deployment
 deploy_prod:
   stage: deploy-prod
-  image: alpine/helm:3.16.2
+  image: 
+    name: alpine/helm:3.16.2
+    entrypoint: [""]
   script:
     - helm dependency build ./helm/charts/app
     - >-
