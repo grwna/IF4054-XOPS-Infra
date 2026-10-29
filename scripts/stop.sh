@@ -19,10 +19,11 @@ else
 fi
 
 echo "Stopping gitlab-runner..."
-if docker ps --format '{{.Names}}' | grep -qx 'gitlab-runner'; then
-  docker stop gitlab-runner
+if systemctl is-active --quiet gitlab-runner 2>/dev/null; then
+  sudo systemctl stop gitlab-runner
+  echo "gitlab-runner stopped."
 else
-  echo "gitlab-runner container is not running."
+  echo "gitlab-runner is not running."
 fi
 
 echo "Stopping kind node (xops-control-plane)..."
