@@ -1,6 +1,6 @@
 terraform {
   backend "local" {
-    path = "/home/xops/IF4054-XOPS-Infra/terraform.tfstate"
+    path = "/home/gitlab-runner/terraform.tfstate"
   }
 
   required_providers {
