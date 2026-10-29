@@ -35,6 +35,8 @@ terraform_apply:
     - terraform init
     - terraform apply -target=kind_cluster.xops -auto-approve
     - terraform apply -auto-approve
+  rules:
+    - if: '$CI_COMMIT_BRANCH == "dev" || $CI_COMMIT_BRANCH == "main"'
 
 # Deploy Kyverno ClusterPolicies to cluster
 deploy_infra:
@@ -42,6 +44,8 @@ deploy_infra:
   image: bitnami/kubectl:latest
   script:
     - kubectl apply -f kyverno/policies/
+  rules:
+    - if: '$CI_COMMIT_BRANCH == "dev" || $CI_COMMIT_BRANCH == "main"'
 
 # Automatic deployment to Dev environment (k8s namespace: dev)
 deploy_dev:

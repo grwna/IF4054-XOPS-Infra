@@ -13,61 +13,45 @@
 
 set -euo pipefail
 
-if [ "$EUID" -ne 0 ]; then
-  echo "Please run as root or with sudo: sudo ./start.sh"
+if [ "$EUID" -eq 0 ]; then
+  echo "Run as your normal user, not root: ./start.sh"
   exit 1
 fi
 
 echo "Starting docker..."
-systemctl start docker
+sudo systemctl start docker
+until docker info &>/dev/null; do sleep 2; done
 
 echo "Starting kind node (xops-control-plane)..."
 if docker ps -a --format '{{.Names}}' | grep -qx 'xops-control-plane'; then
   docker start xops-control-plane
 else
-  echo "kind node container not found — cluster not created yet. Run day 0: sudo terraform apply"
+  echo "kind node not found. Run day 0: terraform apply"
 fi
 
-echo "Refreshing kubeconfig for xops cluster..."
+echo "Refreshing kubeconfig..."
 kind export kubeconfig --name xops
-
-if [ -n "${SUDO_USER:-}" ]; then
-  USER_HOME=$(getent passwd "$SUDO_USER" | cut -d: -f6)
-  mkdir -p "$USER_HOME/.kube"
-  cp /root/.kube/config "$USER_HOME/.kube/config"
-  chown -R "$SUDO_USER:" "$USER_HOME/.kube"
-fi
 
 echo "Starting gitlab-runner..."
 if docker ps -a --format '{{.Names}}' | grep -qx 'gitlab-runner'; then
   docker start gitlab-runner
 else
-  echo "gitlab-runner container not found — run ansible-playbook server-setup.yaml first"
+  echo "gitlab-runner not found. Run ansible-playbook server-setup.yaml first"
 fi
 
 echo "Starting cloudflared..."
 if systemctl list-unit-files | grep -q '^cloudflared'; then
-  systemctl start cloudflared
+  sudo systemctl start cloudflared
 else
-  echo "cloudflared unit not installed — run ansible-playbook server-setup.yaml first"
+  echo "cloudflared unit not installed. Run ansible-playbook server-setup.yaml first"
 fi
 
-# Ensure non-root user owns the kubeconfig if run via sudo
-if [ -n "${SUDO_USER:-}" ]; then
-  USER_HOME=$(getent passwd "$SUDO_USER" | cut -d: -f6)
-  kind export kubeconfig --name xops --kubeconfig "$USER_HOME/.kube/config"
-  chown "$SUDO_USER:" "$USER_HOME/.kube/config"
-fi
-
-echo "Waiting for Kubernetes API server to become ready..."
-until kubectl get nodes --request-timeout='5s' &>/dev/null; do
-  echo "API server not ready yet. Retrying in 5 seconds..."
+echo "Waiting for Kubernetes API server..."
+for i in $(seq 1 24); do
+  kubectl get nodes --request-timeout=5s &>/dev/null && break
+  [ "$i" -eq 24 ] && { echo "API server not ready after 2 min"; exit 1; }
   sleep 5
 done
 
-echo "Node status:"
 kubectl get nodes
-
-
-echo
 echo "Done. Verify pods: kubectl get pods -A"

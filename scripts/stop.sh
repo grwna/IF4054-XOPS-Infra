@@ -5,14 +5,14 @@
 
 set -euo pipefail
 
-if [ "$EUID" -ne 0 ]; then
-  echo "Please run as root or with sudo: sudo ./stop.sh"
+if [ "$EUID" -eq 0 ]; then
+  echo "Run as your normal user, not root: ./stop.sh"
   exit 1
 fi
 
 echo "Stopping cloudflared..."
 if systemctl is-active --quiet cloudflared 2>/dev/null; then
-  systemctl stop cloudflared
+  sudo systemctl stop cloudflared
   echo "cloudflared stopped."
 else
   echo "cloudflared is not running."
