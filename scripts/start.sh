@@ -13,39 +13,45 @@
 
 set -euo pipefail
 
-if [ "$EUID" -ne 0 ]; then
-  echo "Please run as root or with sudo: sudo ./start.sh"
+if [ "$EUID" -eq 0 ]; then
+  echo "Run as your normal user, not root: ./start.sh"
   exit 1
 fi
 
 echo "Starting docker..."
-systemctl start docker
+sudo systemctl start docker
+until docker info &>/dev/null; do sleep 2; done
 
 echo "Starting kind node (xops-control-plane)..."
 if docker ps -a --format '{{.Names}}' | grep -qx 'xops-control-plane'; then
   docker start xops-control-plane
 else
-  echo "kind node container not found — cluster not created yet. Run day 0: sudo terraform apply"
+  echo "kind node not found. Run day 0: terraform apply"
 fi
+
+echo "Refreshing kubeconfig..."
+kind export kubeconfig --name xops
 
 echo "Starting gitlab-runner..."
 if docker ps -a --format '{{.Names}}' | grep -qx 'gitlab-runner'; then
   docker start gitlab-runner
 else
-  echo "gitlab-runner container not found — run ansible-playbook server-setup.yaml first"
+  echo "gitlab-runner not found. Run ansible-playbook server-setup.yaml first"
 fi
 
 echo "Starting cloudflared..."
 if systemctl list-unit-files | grep -q '^cloudflared'; then
-  systemctl start cloudflared
+  sudo systemctl start cloudflared
 else
-  echo "cloudflared unit not installed — run ansible-playbook server-setup.yaml first"
+  echo "cloudflared unit not installed. Run ansible-playbook server-setup.yaml first"
 fi
 
-echo
-echo "Waiting for kubernetes node..."
-sleep 5
-kubectl get nodes || true
+echo "Waiting for Kubernetes API server..."
+for i in $(seq 1 24); do
+  kubectl get nodes --request-timeout=5s &>/dev/null && break
+  [ "$i" -eq 24 ] && { echo "API server not ready after 2 min"; exit 1; }
+  sleep 5
+done
 
-echo
+kubectl get nodes
 echo "Done. Verify pods: kubectl get pods -A"

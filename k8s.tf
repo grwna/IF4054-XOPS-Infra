@@ -1,6 +1,6 @@
 terraform {
   backend "local" {
-    path = "/root/tfstate/terraform.tfstate"
+    path = "/home/xops/IF4054-XOPS-Infra/terraform.tfstate"
   }
 
   required_providers {
@@ -16,16 +16,26 @@ terraform {
       source  = "hashicorp/helm"
       version = "~> 2.14"
     }
+    null = {
+      source  = "hashicorp/null"
+      version = "~> 3.2"
+    }
   }
 }
 
 provider "kubernetes" {
-  config_path = "~/.kube/config"
+  host                   = kind_cluster.xops.endpoint
+  client_certificate     = kind_cluster.xops.client_certificate
+  client_key             = kind_cluster.xops.client_key
+  cluster_ca_certificate = kind_cluster.xops.cluster_ca_certificate
 }
 
 provider "helm" {
   kubernetes {
-    config_path = "~/.kube/config"
+    host                   = kind_cluster.xops.endpoint
+    client_certificate     = kind_cluster.xops.client_certificate
+    client_key             = kind_cluster.xops.client_key
+    cluster_ca_certificate = kind_cluster.xops.cluster_ca_certificate
   }
 }
 
@@ -56,10 +66,19 @@ resource "kind_cluster" "xops" {
   }
 }
 
+# --- Kubernetes API readiness ---
+resource "null_resource" "wait_for_api" {
+  depends_on = [kind_cluster.xops]
+
+  provisioner "local-exec" {
+    command = "kubectl --context kind-xops wait --for=condition=Ready nodes --all --timeout=120s && kubectl --context kind-xops get --raw /readyz"
+  }
+}
+
 # --- Namespaces ---
 resource "kubernetes_namespace" "namespaces" {
   for_each   = toset(["dev", "prod"])
-  depends_on = [kind_cluster.xops]
+  depends_on = [null_resource.wait_for_api]
   metadata {
     name = each.key
   }
@@ -74,7 +93,7 @@ resource "helm_release" "ingress_nginx" {
   create_namespace = true
   timeout          = 900
   cleanup_on_fail  = true
-  depends_on       = [kind_cluster.xops]
+  depends_on       = [null_resource.wait_for_api]
 
   set {
     name  = "controller.hostPort.enabled"
@@ -95,13 +114,14 @@ resource "helm_release" "ingress_nginx" {
 # --- Kyverno Helm Chart ---
 resource "helm_release" "kyverno" {
   name             = "kyverno"
-  repository       = "https://kyverno.github.io/kyverno/"
+  version          = "3.9.2"
+  repository       = "oci://ghcr.io/kyverno/charts"
   chart            = "kyverno"
   namespace        = "kyverno"
   create_namespace = true
   timeout          = 900
   cleanup_on_fail  = true
-  depends_on       = [kind_cluster.xops]
+  depends_on       = [null_resource.wait_for_api]
 }
 
 # --- Metrics Server (required for HPA) ---
@@ -112,7 +132,7 @@ resource "helm_release" "metrics_server" {
   namespace        = "kube-system"
   timeout          = 900
   cleanup_on_fail  = true
-  depends_on       = [kind_cluster.xops]
+  depends_on       = [null_resource.wait_for_api]
 
   set {
     name  = "args"

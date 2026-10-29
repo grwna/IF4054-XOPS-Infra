@@ -97,8 +97,8 @@
         volumes:
           - /var/run/docker.sock:/var/run/docker.sock
           - gitlab-runner-config:/etc/gitlab-runner
-          - /root/.kube:/root/.kube
-          - /root/tfstate:/root/tfstate
+          - /home/xops/.kube:/root/.kube
+          - /home/xops/IF4054-XOPS-Infra:/home/xops/IF4054-XOPS-Infra
 
     - name: Check runner registration state
       command: docker exec gitlab-runner cat /etc/gitlab-runner/config.toml
@@ -115,8 +115,8 @@
         --executor "docker"
         --docker-image "alpine:latest"
         --docker-volumes "/var/run/docker.sock:/var/run/docker.sock"
-        --docker-volumes "/root/.kube:/root/.kube"
-        --docker-volumes "/root/tfstate:/root/tfstate"
+        --docker-volumes "/home/xops/.kube:/root/.kube"
+        --docker-volumes "/home/xops/IF4054-XOPS-Infra:/home/xops/IF4054-XOPS-Infra"
         --docker-network-mode "host"
         --description "wsl-kind-runner"
       when: "'[[runners]]' not in runner_cfg.stdout"
