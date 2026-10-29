@@ -15,11 +15,11 @@ variables:
 # Kyverno CLI validation test suite
 validate_policies:
   stage: validate
-  image:
-    name: ghcr.io/kyverno/kyverno-cli:v1.19.2
-    entrypoint: [""]
+  image: alpine:latest
   script:
+    - wget -qO- https://github.com/kyverno/kyverno/releases/download/v1.19.2/kyverno-cli_v1.19.2_linux_x86_64.tar.gz | tar -xz -C /usr/local/bin kyverno
     - kyverno test ./kyverno/tests/
+
 
 # Terraform: cluster + namespaces + ingress-nginx + kyverno + metrics-server
 # State persists on the xops host project directory via the server-setup.yaml runner volume.
