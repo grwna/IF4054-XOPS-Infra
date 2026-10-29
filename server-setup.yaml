@@ -19,7 +19,7 @@
         state: present
         update_cache: yes
 
-    - name: Ensure user is in the docker group
+    - name: Ensure xops user is in the docker group
       user:
         name: xops
         groups: docker
@@ -87,39 +87,35 @@
       args:
         creates: /usr/local/bin/kyverno
 
-    # --- Docker Workloads ---
-    - name: Run GitLab Runner container
-      docker_container:
+    # --- GitLab Runner Native Installation ---
+    - name: Add GitLab Runner official repository
+      shell: curl -L "https://packages.gitlab.com/install/repositories/runner/gitlab-runner/script.deb.sh" | bash
+      args:
+        creates: /etc/apt/sources.list.d/runner_gitlab-runner.list
+
+    - name: Install GitLab Runner native package
+      apt:
         name: gitlab-runner
-        image: gitlab/gitlab-runner:latest
-        state: started
-        restart_policy: always
-        volumes:
-          - /var/run/docker.sock:/var/run/docker.sock
-          - gitlab-runner-config:/etc/gitlab-runner
-          - /home/xops/.kube:/root/.kube
-          - /home/xops/IF4054-XOPS-Infra:/home/xops/IF4054-XOPS-Infra
+        state: present
+
+    - name: Ensure gitlab-runner user is in the docker group
+      user:
+        name: gitlab-runner
+        groups: docker
+        append: yes
 
     - name: Check runner registration state
-      command: docker exec gitlab-runner cat /etc/gitlab-runner/config.toml
+      command: grep "wsl-kind-runner" /etc/gitlab-runner/config.toml
       register: runner_cfg
       failed_when: false
       changed_when: false
 
-    - name: Register GitLab Runner
+    - name: Register GitLab Runner directly
       command: >
-        docker exec gitlab-runner gitlab-runner register
+        gitlab-runner register
         --non-interactive
         --url "{{ gitlab_url }}"
         --token "{{ gitlab_token }}"
-        --executor "docker"
-        --docker-image "alpine:latest"
-        --docker-volumes "/var/run/docker.sock:/var/run/docker.sock"
-        --docker-volumes "/home/xops/.kube:/root/.kube"
-        --docker-volumes "/home/xops/IF4054-XOPS-Infra:/home/xops/IF4054-XOPS-Infra"
-        --docker-network-mode "host"
+        --executor "shell"
         --description "wsl-kind-runner"
-      when: "'[[runners]]' not in runner_cfg.stdout"
-      register: runner_reg
-      failed_when: false
-      changed_when: runner_reg.rc == 0
+      when: runner_cfg.rc != 0

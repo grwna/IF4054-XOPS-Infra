@@ -33,10 +33,10 @@ echo "Refreshing kubeconfig..."
 kind export kubeconfig --name xops
 
 echo "Starting gitlab-runner..."
-if docker ps -a --format '{{.Names}}' | grep -qx 'gitlab-runner'; then
-  docker start gitlab-runner
+if systemctl list-unit-files | grep -q '^gitlab-runner'; then
+  sudo systemctl start gitlab-runner
 else
-  echo "gitlab-runner not found. Run ansible-playbook server-setup.yaml first"
+  echo "gitlab-runner unit not installed. Run ansible-playbook server-setup.yaml first"
 fi
 
 echo "Starting cloudflared..."

@@ -9,42 +9,27 @@ default:
   tags:
     - xops
 
-variables:
-  KUBECONFIG: /root/.kube/config
-
 # Kyverno CLI validation test suite
 validate_policies:
   stage: validate
-  image: buildpack-deps:curl
   script:
-    - curl -L https://github.com/kyverno/kyverno/releases/download/v1.19.2/kyverno-cli_v1.19.2_linux_x86_64.tar.gz | tar -xz -C /usr/local/bin kyverno
     - kyverno test ./kyverno-policies/tests/
 
 # Terraform: cluster + namespaces + ingress-nginx + kyverno + metrics-server
-# State persists on the xops host project directory via the server-setup.yaml runner volume.
 terraform_apply:
   stage: deploy-cluster
-  image: 
-    name: hashicorp/terraform:1.17
-    entrypoint: [""]
   resource_group: terraform
   timeout: 30m
   script:
-    - wget -qO /usr/local/bin/kind https://kind.sigs.k8s.io/dl/v0.24.0/kind-linux-amd64
-    - chmod +x /usr/local/bin/kind
-    - export TF_DATA_DIR=/home/xops/IF4054-XOPS-Infra/.terraform-cache
     - terraform init
-    - terraform apply -target=kind_cluster.xops -auto-approve
-    - terraform apply -auto-approve
+    - terraform apply -target=kind_cluster.xops -state=/home/gitlab-runner/terraform.tfstate -auto-approve
+    - terraform apply -state=/home/gitlab-runner/terraform.tfstate -auto-approve
   rules:
     - if: '$CI_COMMIT_BRANCH == "dev" || $CI_COMMIT_BRANCH == "main"'
 
 # Deploy Kyverno ClusterPolicies to cluster
 deploy_infra:
   stage: deploy-infra
-  image: 
-    name: bitnami/kubectl:latest
-    entrypoint: [""]
   script:
     - kubectl apply -f kyverno-policies/policies/
   rules:
@@ -53,9 +38,6 @@ deploy_infra:
 # Automatic deployment to Dev environment (k8s namespace: dev)
 deploy_dev:
   stage: deploy-dev
-  image: 
-    name: alpine/helm:3.16.2
-    entrypoint: [""]
   script:
     - helm dependency build ./helm/charts/app
     - >-
@@ -66,7 +48,6 @@ deploy_dev:
       --set checkout.image.tag=${APP_IMAGE_TAG:-$CI_COMMIT_SHORT_SHA}
       --set orders.image.tag=${APP_IMAGE_TAG:-$CI_COMMIT_SHORT_SHA}
       --set ui.image.tag=${APP_IMAGE_TAG:-$CI_COMMIT_SHORT_SHA}
-
   environment:
     name: dev
   rules:
@@ -75,9 +56,6 @@ deploy_dev:
 # Manual approval gate for Production deployment
 deploy_prod:
   stage: deploy-prod
-  image: 
-    name: alpine/helm:3.16.2
-    entrypoint: [""]
   script:
     - helm dependency build ./helm/charts/app
     - >-
@@ -90,6 +68,6 @@ deploy_prod:
       --set ui.image.tag=${APP_IMAGE_TAG:-$CI_COMMIT_SHORT_SHA}
   environment:
     name: prod
-  when: manual  # approved by human
+  when: manual
   rules:
     - if: '$CI_COMMIT_BRANCH == "main"'
