@@ -18,7 +18,7 @@ validate_policies:
   image: alpine:latest
   script:
     - wget -qO- https://github.com/kyverno/kyverno/releases/download/v1.19.2/kyverno-cli_v1.19.2_linux_x86_64.tar.gz | tar -xz -C /usr/local/bin kyverno
-    - kyverno test ./kyverno/tests/
+    - kyverno-policies test ./kyverno/tests/
 
 
 # Terraform: cluster + namespaces + ingress-nginx + kyverno + metrics-server
@@ -66,7 +66,6 @@ deploy_dev:
     name: dev
   rules:
     - if: '$CI_COMMIT_BRANCH == "dev"'
-    - if: '$CI_PIPELINE_SOURCE == "pipeline"'
 
 # Manual approval gate for Production deployment
 deploy_prod:
@@ -87,4 +86,3 @@ deploy_prod:
   when: manual  # approved by human
   rules:
     - if: '$CI_COMMIT_BRANCH == "main"'
-    - if: '$CI_PIPELINE_SOURCE == "pipeline"'
