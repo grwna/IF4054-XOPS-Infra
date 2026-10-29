@@ -48,7 +48,7 @@ Checked directly against `src/<service>/chart/templates/deployment.yaml` and
 | Non-root | `runAsNonRoot: true`, `runAsUser: 1000` ✅ | kept, then corrected to `10001` — see note below |
 | Read-only root filesystem | `readOnlyRootFilesystem: true` + `emptyDir` for `/tmp` ✅ | kept |
 | No privilege escalation | `allowPrivilegeEscalation` never set ❌ (Kubernetes default is `true`) | added `allowPrivilegeEscalation: false` to every service's `securityContext` in `values.yaml` |
-| Image from own registry | defaults to `public.ecr.aws/aws-containers/...` ❌ | overridden per environment to `registry.gitlab-edu.itb.ac.id/<group>/retail-store-app-xops/<service>` |
+| Image from own registry | defaults to `public.ecr.aws/aws-containers/...` ❌ | overridden per environment to `docker.io/starath/retail-store-<service>` |
 | Ingress/gateway from outside | present only on the `ui` chart ✅ (correct — `ui` is the only public entry point, every other service is ClusterIP-only and reached through `ui`) | enabled per environment with a distinct dev/prod host |
 
 Liveness probe paths were chosen per service's actual health framework:
@@ -114,7 +114,7 @@ bootstrap or self-healing.
 | `disallow-privilege-escalation.yaml` | 3.d — larangan privilege escalation | `allowPrivilegeEscalation` not explicitly `false` (missing field is rejected too, since the Kubernetes default is `true`) |
 | `require-resource-limits.yaml` | 3.c — limit resource CPU dan memory | missing `resources.limits.cpu` or `resources.limits.memory` |
 | `require-liveness-readiness-probes.yaml` | 3.c — liveness **dan** readiness probe | missing either probe. Written independently of Kyverno's own official "require-probes" example policy, which only requires *one* of liveness/readiness/startup — not strict enough for this requirement. |
-| `restrict-image-registries.yaml` | 3.b — image hanya dari registry sendiri | image that doesn't match the group's GitLab Container Registry path prefix |
+| `restrict-image-registries.yaml` | 3.b — image hanya dari registry sendiri | image that doesn't match the group's Docker Hub namespace prefix (`docker.io/starath/retail-store-*`) |
 
 Deliberately **not** enforced via Kyverno (left to the CI/CD pipeline or the
 cluster-level HPA/metrics-server setup instead, each for a stated reason):
@@ -160,12 +160,13 @@ kyverno test kyverno/tests/
 
 ## 6. Known gaps / handed off to other members
 
-- **Registry path placeholder.** Policies and values files use
-  `registry.gitlab-edu.itb.ac.id/if4054-2026-t1-13523035-13523095-13523106/retail-store-app-xops/<service>`,
-  inferred from the infra repo's own GitLab remote. Needs confirmation
-  against the app repo's CI pipeline's actual `$CI_REGISTRY_IMAGE` once it's
-  set up, and a one-line update to all 6 `values.yaml`/policy files if it
-  differs.
+- **Registry target — resolved.** Originally assumed GitLab Container
+  Registry (`registry.gitlab-edu.itb.ac.id/<group>/retail-store-app-xops/<service>`),
+  inferred from the infra repo's own GitLab remote. The app repo's CI
+  actually publishes to **Docker Hub** instead (`ci/publish-images.py`,
+  `IMAGE_HOST = "docker.io"`), confirmed via the app repo's group-level
+  CI/CD variable `DOCKERHUB_NAMESPACE = starath`. All `values.yaml`/policy
+  files were updated to `docker.io/starath/retail-store-<service>`.
 - **Ingress controller.** `ingressClassName: nginx` is a placeholder; whoever
   owns cluster bootstrap (IaC) picks and installs the actual controller.
 - **Namespace is not baked into the manifests** — `metadata.namespace` is

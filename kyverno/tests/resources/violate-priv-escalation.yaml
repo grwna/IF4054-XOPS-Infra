@@ -52,7 +52,7 @@ spec:
             readOnlyRootFilesystem: true
             runAsNonRoot: true
             runAsUser: 1000
-          image: "starath/retail-store-cart:latest"
+          image: "docker.io/starath/retail-store-cart:latest"
           imagePullPolicy: IfNotPresent
           ports:
             - name: http

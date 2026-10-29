@@ -33,7 +33,7 @@ policy require-run-as-nonroot -> resource default/Deployment/carts-violate-root 
 --- resource: kyverno/tests/resources/violate-untrusted-registry.yaml ---
 Applying 12 policy rule(s) to 1 resource(s)...
 policy restrict-image-registries -> resource default/Deployment/carts-violate-untrusted-registry failed:
-1 - autogen-restrict-to-group-registry validation error: Container image must come from this group's registry: registry.gitlab-edu.itb.ac.id/if4054-2026-t1-13523035-13523095-13523106/retail-store-app-xops/*. rule autogen-restrict-to-group-registry failed at path /spec/template/spec/containers/0/image/
+1 - autogen-restrict-to-group-registry validation error: Container image must come from this group's Docker Hub namespace: docker.io/starath/retail-store-*. rule autogen-restrict-to-group-registry failed at path /spec/template/spec/containers/0/image/
 
 
 --- resource: kyverno/tests/resources/violate-writable-fs.yaml ---

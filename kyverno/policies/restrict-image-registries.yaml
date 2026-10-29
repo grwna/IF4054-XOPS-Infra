@@ -11,8 +11,10 @@ metadata:
     policies.kyverno.io/description: >-
       Spec requirement 3.b: "Image yang boleh dijalankan di cluster hanya
       yang berasal dari repositori Anda." Every container image must come
-      from this team's Docker repository (starath/retail-store-*); images from
-      Docker Hub library, public ECR, or any other unauthorized path are rejected.
+      from this group's Docker Hub namespace (docker.io/starath/retail-store-*,
+      confirmed from the app repo's DOCKERHUB_NAMESPACE CI/CD variable);
+      images from any other registry or namespace are rejected. Update the
+      pattern below if the group's Docker Hub namespace changes.
 spec:
   validationFailureAction: Enforce
   background: true
@@ -31,11 +33,9 @@ spec:
                 - kyverno
       validate:
         message: >-
-          Container image must come from this team's registry: starath/retail-store-*
-        anyPattern:
-          - spec:
-              containers:
-                - image: "starath/retail-store-*"
-          - spec:
-              containers:
-                - image: "*starath/retail-store-*"
+          Container image must come from this group's Docker Hub namespace:
+          docker.io/starath/retail-store-*
+        pattern:
+          spec:
+            containers:
+              - image: "docker.io/starath/retail-store-*"

@@ -17,78 +17,6 @@ results:
   resources:
   - apiVersion: apps/v1
     kind: Deployment
-    name: carts
-    namespace: default
-  result: pass
-  rule: autogen-require-both-probes
-  scored: true
-  severity: medium
-  source: kyverno
-  timestamp:
-    nanos: 0
-    seconds: 1793184060
-- category: Best Practices
-  message: validation rule 'autogen-require-cpu-memory-limits' passed.
-  policy: require-resource-limits
-  properties:
-    process: background scan
-  resources:
-  - apiVersion: apps/v1
-    kind: Deployment
-    name: carts
-    namespace: default
-  result: pass
-  rule: autogen-require-cpu-memory-limits
-  scored: true
-  severity: medium
-  source: kyverno
-  timestamp:
-    nanos: 0
-    seconds: 1793184060
-- category: Pod Security Standards (Restricted)
-  message: validation rule 'autogen-run-as-non-root' anyPattern[1] passed.
-  policy: require-run-as-nonroot
-  properties:
-    process: background scan
-  resources:
-  - apiVersion: apps/v1
-    kind: Deployment
-    name: carts
-    namespace: default
-  result: pass
-  rule: autogen-run-as-non-root
-  scored: true
-  severity: high
-  source: kyverno
-  timestamp:
-    nanos: 0
-    seconds: 1793184060
-- category: Pod Security Standards (Restricted)
-  message: validation rule 'autogen-disallow-privilege-escalation' passed.
-  policy: disallow-privilege-escalation
-  properties:
-    process: background scan
-  resources:
-  - apiVersion: apps/v1
-    kind: Deployment
-    name: catalog
-    namespace: default
-  result: pass
-  rule: autogen-disallow-privilege-escalation
-  scored: true
-  severity: high
-  source: kyverno
-  timestamp:
-    nanos: 0
-    seconds: 1793184060
-- category: Best Practices
-  message: validation rule 'autogen-require-both-probes' passed.
-  policy: require-liveness-readiness-probes
-  properties:
-    process: background scan
-  resources:
-  - apiVersion: apps/v1
-    kind: Deployment
     name: checkout
     namespace: default
   result: pass
@@ -98,100 +26,10 @@ results:
   source: kyverno
   timestamp:
     nanos: 0
-    seconds: 1793184060
+    seconds: 1793202918
 - category: Best Practices
   message: validation rule 'autogen-require-both-probes' passed.
   policy: require-liveness-readiness-probes
-  properties:
-    process: background scan
-  resources:
-  - apiVersion: apps/v1
-    kind: Deployment
-    name: orders
-    namespace: default
-  result: pass
-  rule: autogen-require-both-probes
-  scored: true
-  severity: medium
-  source: kyverno
-  timestamp:
-    nanos: 0
-    seconds: 1793184060
-- category: Best Practices
-  message: validation rule 'autogen-require-cpu-memory-limits' passed.
-  policy: require-resource-limits
-  properties:
-    process: background scan
-  resources:
-  - apiVersion: apps/v1
-    kind: Deployment
-    name: ui
-    namespace: default
-  result: pass
-  rule: autogen-require-cpu-memory-limits
-  scored: true
-  severity: medium
-  source: kyverno
-  timestamp:
-    nanos: 0
-    seconds: 1793184060
-- category: Best Practices
-  message: validation rule 'autogen-require-cpu-memory-limits' passed.
-  policy: require-resource-limits
-  properties:
-    process: background scan
-  resources:
-  - apiVersion: apps/v1
-    kind: Deployment
-    name: catalog
-    namespace: default
-  result: pass
-  rule: autogen-require-cpu-memory-limits
-  scored: true
-  severity: medium
-  source: kyverno
-  timestamp:
-    nanos: 0
-    seconds: 1793184060
-- category: Best Practices
-  message: validation rule 'autogen-restrict-to-group-registry' passed.
-  policy: restrict-image-registries
-  properties:
-    process: background scan
-  resources:
-  - apiVersion: apps/v1
-    kind: Deployment
-    name: ui
-    namespace: default
-  result: pass
-  rule: autogen-restrict-to-group-registry
-  scored: true
-  severity: high
-  source: kyverno
-  timestamp:
-    nanos: 0
-    seconds: 1793184060
-- category: Best Practices
-  message: validation rule 'autogen-restrict-to-group-registry' passed.
-  policy: restrict-image-registries
-  properties:
-    process: background scan
-  resources:
-  - apiVersion: apps/v1
-    kind: Deployment
-    name: orders
-    namespace: default
-  result: pass
-  rule: autogen-restrict-to-group-registry
-  scored: true
-  severity: high
-  source: kyverno
-  timestamp:
-    nanos: 0
-    seconds: 1793184060
-- category: Best Practices
-  message: validation rule 'autogen-restrict-to-group-registry' passed.
-  policy: restrict-image-registries
   properties:
     process: background scan
   resources:
@@ -200,31 +38,31 @@ results:
     name: carts
     namespace: default
   result: pass
-  rule: autogen-restrict-to-group-registry
-  scored: true
-  severity: high
-  source: kyverno
-  timestamp:
-    nanos: 0
-    seconds: 1793184060
-- category: Best Practices
-  message: validation rule 'autogen-require-both-probes' passed.
-  policy: require-liveness-readiness-probes
-  properties:
-    process: background scan
-  resources:
-  - apiVersion: apps/v1
-    kind: Deployment
-    name: catalog
-    namespace: default
-  result: pass
   rule: autogen-require-both-probes
   scored: true
   severity: medium
   source: kyverno
   timestamp:
     nanos: 0
-    seconds: 1793184060
+    seconds: 1793202918
+- category: Pod Security Standards (Restricted)
+  message: validation rule 'autogen-read-only-root-filesystem' passed.
+  policy: require-readonly-rootfs
+  properties:
+    process: background scan
+  resources:
+  - apiVersion: apps/v1
+    kind: Deployment
+    name: carts
+    namespace: default
+  result: pass
+  rule: autogen-read-only-root-filesystem
+  scored: true
+  severity: high
+  source: kyverno
+  timestamp:
+    nanos: 0
+    seconds: 1793202918
 - category: Pod Security Standards (Restricted)
   message: validation rule 'autogen-run-as-non-root' anyPattern[1] passed.
   policy: require-run-as-nonroot
@@ -233,7 +71,7 @@ results:
   resources:
   - apiVersion: apps/v1
     kind: Deployment
-    name: catalog
+    name: carts
     namespace: default
   result: pass
   rule: autogen-run-as-non-root
@@ -242,7 +80,61 @@ results:
   source: kyverno
   timestamp:
     nanos: 0
-    seconds: 1793184060
+    seconds: 1793202918
+- category: Pod Security Standards (Restricted)
+  message: validation rule 'autogen-disallow-privilege-escalation' passed.
+  policy: disallow-privilege-escalation
+  properties:
+    process: background scan
+  resources:
+  - apiVersion: apps/v1
+    kind: Deployment
+    name: catalog
+    namespace: default
+  result: pass
+  rule: autogen-disallow-privilege-escalation
+  scored: true
+  severity: high
+  source: kyverno
+  timestamp:
+    nanos: 0
+    seconds: 1793202918
+- category: Best Practices
+  message: validation rule 'autogen-require-cpu-memory-limits' passed.
+  policy: require-resource-limits
+  properties:
+    process: background scan
+  resources:
+  - apiVersion: apps/v1
+    kind: Deployment
+    name: catalog
+    namespace: default
+  result: pass
+  rule: autogen-require-cpu-memory-limits
+  scored: true
+  severity: medium
+  source: kyverno
+  timestamp:
+    nanos: 0
+    seconds: 1793202918
+- category: Pod Security Standards (Restricted)
+  message: validation rule 'autogen-run-as-non-root' anyPattern[1] passed.
+  policy: require-run-as-nonroot
+  properties:
+    process: background scan
+  resources:
+  - apiVersion: apps/v1
+    kind: Deployment
+    name: ui
+    namespace: default
+  result: pass
+  rule: autogen-run-as-non-root
+  scored: true
+  severity: high
+  source: kyverno
+  timestamp:
+    nanos: 0
+    seconds: 1793202918
 - category: Pod Security Standards (Restricted)
   message: validation rule 'autogen-disallow-privilege-escalation' passed.
   policy: disallow-privilege-escalation
@@ -260,25 +152,7 @@ results:
   source: kyverno
   timestamp:
     nanos: 0
-    seconds: 1793184060
-- category: Pod Security Standards (Restricted)
-  message: validation rule 'autogen-read-only-root-filesystem' passed.
-  policy: require-readonly-rootfs
-  properties:
-    process: background scan
-  resources:
-  - apiVersion: apps/v1
-    kind: Deployment
-    name: ui
-    namespace: default
-  result: pass
-  rule: autogen-read-only-root-filesystem
-  scored: true
-  severity: high
-  source: kyverno
-  timestamp:
-    nanos: 0
-    seconds: 1793184060
+    seconds: 1793202918
 - category: Pod Security Standards (Restricted)
   message: validation rule 'autogen-run-as-non-root' anyPattern[1] passed.
   policy: require-run-as-nonroot
@@ -287,7 +161,7 @@ results:
   resources:
   - apiVersion: apps/v1
     kind: Deployment
-    name: ui
+    name: catalog
     namespace: default
   result: pass
   rule: autogen-run-as-non-root
@@ -296,7 +170,25 @@ results:
   source: kyverno
   timestamp:
     nanos: 0
-    seconds: 1793184060
+    seconds: 1793202918
+- category: Best Practices
+  message: validation rule 'autogen-restrict-to-group-registry' passed.
+  policy: restrict-image-registries
+  properties:
+    process: background scan
+  resources:
+  - apiVersion: apps/v1
+    kind: Deployment
+    name: catalog
+    namespace: default
+  result: pass
+  rule: autogen-restrict-to-group-registry
+  scored: true
+  severity: high
+  source: kyverno
+  timestamp:
+    nanos: 0
+    seconds: 1793202918
 - category: Pod Security Standards (Restricted)
   message: validation rule 'autogen-disallow-privilege-escalation' passed.
   policy: disallow-privilege-escalation
@@ -314,25 +206,7 @@ results:
   source: kyverno
   timestamp:
     nanos: 0
-    seconds: 1793184060
-- category: Pod Security Standards (Restricted)
-  message: validation rule 'autogen-read-only-root-filesystem' passed.
-  policy: require-readonly-rootfs
-  properties:
-    process: background scan
-  resources:
-  - apiVersion: apps/v1
-    kind: Deployment
-    name: orders
-    namespace: default
-  result: pass
-  rule: autogen-read-only-root-filesystem
-  scored: true
-  severity: high
-  source: kyverno
-  timestamp:
-    nanos: 0
-    seconds: 1793184060
+    seconds: 1793202918
 - category: Pod Security Standards (Restricted)
   message: validation rule 'autogen-run-as-non-root' anyPattern[1] passed.
   policy: require-run-as-nonroot
@@ -350,10 +224,10 @@ results:
   source: kyverno
   timestamp:
     nanos: 0
-    seconds: 1793184060
+    seconds: 1793202918
 - category: Pod Security Standards (Restricted)
-  message: validation rule 'autogen-disallow-privilege-escalation' passed.
-  policy: disallow-privilege-escalation
+  message: validation rule 'autogen-read-only-root-filesystem' passed.
+  policy: require-readonly-rootfs
   properties:
     process: background scan
   resources:
@@ -362,13 +236,67 @@ results:
     name: ui
     namespace: default
   result: pass
-  rule: autogen-disallow-privilege-escalation
+  rule: autogen-read-only-root-filesystem
   scored: true
   severity: high
   source: kyverno
   timestamp:
     nanos: 0
-    seconds: 1793184060
+    seconds: 1793202918
+- category: Best Practices
+  message: validation rule 'autogen-require-cpu-memory-limits' passed.
+  policy: require-resource-limits
+  properties:
+    process: background scan
+  resources:
+  - apiVersion: apps/v1
+    kind: Deployment
+    name: orders
+    namespace: default
+  result: pass
+  rule: autogen-require-cpu-memory-limits
+  scored: true
+  severity: medium
+  source: kyverno
+  timestamp:
+    nanos: 0
+    seconds: 1793202918
+- category: Best Practices
+  message: validation rule 'autogen-restrict-to-group-registry' passed.
+  policy: restrict-image-registries
+  properties:
+    process: background scan
+  resources:
+  - apiVersion: apps/v1
+    kind: Deployment
+    name: orders
+    namespace: default
+  result: pass
+  rule: autogen-run-as-non-root
+  scored: true
+  severity: high
+  source: kyverno
+  timestamp:
+    nanos: 0
+    seconds: 1793202918
+- category: Best Practices
+  message: validation rule 'autogen-require-both-probes' passed.
+  policy: require-liveness-readiness-probes
+  properties:
+    process: background scan
+  resources:
+  - apiVersion: apps/v1
+    kind: Deployment
+    name: orders
+    namespace: default
+  result: pass
+  rule: autogen-require-both-probes
+  scored: true
+  severity: medium
+  source: kyverno
+  timestamp:
+    nanos: 0
+    seconds: 1793202918
 - category: Best Practices
   message: validation rule 'autogen-require-both-probes' passed.
   policy: require-liveness-readiness-probes
@@ -386,10 +314,28 @@ results:
   source: kyverno
   timestamp:
     nanos: 0
-    seconds: 1793184060
-- category: Pod Security Standards (Restricted)
-  message: validation rule 'autogen-disallow-privilege-escalation' passed.
-  policy: disallow-privilege-escalation
+    seconds: 1793202918
+- category: Best Practices
+  message: validation rule 'autogen-require-cpu-memory-limits' passed.
+  policy: require-resource-limits
+  properties:
+    process: background scan
+  resources:
+  - apiVersion: apps/v1
+    kind: Deployment
+    name: ui
+    namespace: default
+  result: pass
+  rule: autogen-require-cpu-memory-limits
+  scored: true
+  severity: medium
+  source: kyverno
+  timestamp:
+    nanos: 0
+    seconds: 1793202918
+- category: Best Practices
+  message: validation rule 'autogen-restrict-to-group-registry' passed.
+  policy: restrict-image-registries
   properties:
     process: background scan
   resources:
@@ -398,49 +344,13 @@ results:
     name: carts
     namespace: default
   result: pass
-  rule: autogen-disallow-privilege-escalation
+  rule: autogen-restrict-to-group-registry
   scored: true
   severity: high
   source: kyverno
   timestamp:
     nanos: 0
-    seconds: 1793184060
-- category: Pod Security Standards (Restricted)
-  message: validation rule 'autogen-read-only-root-filesystem' passed.
-  policy: require-readonly-rootfs
-  properties:
-    process: background scan
-  resources:
-  - apiVersion: apps/v1
-    kind: Deployment
-    name: carts
-    namespace: default
-  result: pass
-  rule: autogen-read-only-root-filesystem
-  scored: true
-  severity: high
-  source: kyverno
-  timestamp:
-    nanos: 0
-    seconds: 1793184060
-- category: Pod Security Standards (Restricted)
-  message: validation rule 'autogen-read-only-root-filesystem' passed.
-  policy: require-readonly-rootfs
-  properties:
-    process: background scan
-  resources:
-  - apiVersion: apps/v1
-    kind: Deployment
-    name: checkout
-    namespace: default
-  result: pass
-  rule: autogen-read-only-root-filesystem
-  scored: true
-  severity: high
-  source: kyverno
-  timestamp:
-    nanos: 0
-    seconds: 1793184060
+    seconds: 1793202918
 - category: Best Practices
   message: validation rule 'autogen-restrict-to-group-registry' passed.
   policy: restrict-image-registries
@@ -458,25 +368,7 @@ results:
   source: kyverno
   timestamp:
     nanos: 0
-    seconds: 1793184060
-- category: Best Practices
-  message: validation rule 'autogen-require-cpu-memory-limits' passed.
-  policy: require-resource-limits
-  properties:
-    process: background scan
-  resources:
-  - apiVersion: apps/v1
-    kind: Deployment
-    name: orders
-    namespace: default
-  result: pass
-  rule: autogen-require-cpu-memory-limits
-  scored: true
-  severity: medium
-  source: kyverno
-  timestamp:
-    nanos: 0
-    seconds: 1793184060
+    seconds: 1793202918
 - category: Pod Security Standards (Restricted)
   message: validation rule 'autogen-read-only-root-filesystem' passed.
   policy: require-readonly-rootfs
@@ -485,7 +377,7 @@ results:
   resources:
   - apiVersion: apps/v1
     kind: Deployment
-    name: catalog
+    name: checkout
     namespace: default
   result: pass
   rule: autogen-read-only-root-filesystem
@@ -494,43 +386,7 @@ results:
   source: kyverno
   timestamp:
     nanos: 0
-    seconds: 1793184060
-- category: Best Practices
-  message: validation rule 'autogen-restrict-to-group-registry' passed.
-  policy: restrict-image-registries
-  properties:
-    process: background scan
-  resources:
-  - apiVersion: apps/v1
-    kind: Deployment
-    name: catalog
-    namespace: default
-  result: pass
-  rule: autogen-restrict-to-group-registry
-  scored: true
-  severity: high
-  source: kyverno
-  timestamp:
-    nanos: 0
-    seconds: 1793184060
-- category: Best Practices
-  message: validation rule 'autogen-require-cpu-memory-limits' passed.
-  policy: require-resource-limits
-  properties:
-    process: background scan
-  resources:
-  - apiVersion: apps/v1
-    kind: Deployment
-    name: checkout
-    namespace: default
-  result: pass
-  rule: autogen-require-cpu-memory-limits
-  scored: true
-  severity: medium
-  source: kyverno
-  timestamp:
-    nanos: 0
-    seconds: 1793184060
+    seconds: 1793202918
 - category: Pod Security Standards (Restricted)
   message: validation rule 'autogen-run-as-non-root' anyPattern[1] passed.
   policy: require-run-as-nonroot
@@ -548,7 +404,151 @@ results:
   source: kyverno
   timestamp:
     nanos: 0
-    seconds: 1793184060
+    seconds: 1793202918
+- category: Best Practices
+  message: validation rule 'autogen-require-cpu-memory-limits' passed.
+  policy: require-resource-limits
+  properties:
+    process: background scan
+  resources:
+  - apiVersion: apps/v1
+    kind: Deployment
+    name: carts
+    namespace: default
+  result: pass
+  rule: autogen-require-cpu-memory-limits
+  scored: true
+  severity: medium
+  source: kyverno
+  timestamp:
+    nanos: 0
+    seconds: 1793202918
+- category: Best Practices
+  message: validation rule 'autogen-require-both-probes' passed.
+  policy: require-liveness-readiness-probes
+  properties:
+    process: background scan
+  resources:
+  - apiVersion: apps/v1
+    kind: Deployment
+    name: catalog
+    namespace: default
+  result: pass
+  rule: autogen-require-both-probes
+  scored: true
+  severity: medium
+  source: kyverno
+  timestamp:
+    nanos: 0
+    seconds: 1793202918
+- category: Pod Security Standards (Restricted)
+  message: validation rule 'autogen-read-only-root-filesystem' passed.
+  policy: require-readonly-rootfs
+  properties:
+    process: background scan
+  resources:
+  - apiVersion: apps/v1
+    kind: Deployment
+    name: orders
+    namespace: default
+  result: pass
+  rule: autogen-read-only-root-filesystem
+  scored: true
+  severity: high
+  source: kyverno
+  timestamp:
+    nanos: 0
+    seconds: 1793202918
+- category: Pod Security Standards (Restricted)
+  message: validation rule 'autogen-disallow-privilege-escalation' passed.
+  policy: disallow-privilege-escalation
+  properties:
+    process: background scan
+  resources:
+  - apiVersion: apps/v1
+    kind: Deployment
+    name: ui
+    namespace: default
+  result: pass
+  rule: autogen-disallow-privilege-escalation
+  scored: true
+  severity: high
+  source: kyverno
+  timestamp:
+    nanos: 0
+    seconds: 1793202918
+- category: Pod Security Standards (Restricted)
+  message: validation rule 'autogen-read-only-root-filesystem' passed.
+  policy: require-readonly-rootfs
+  properties:
+    process: background scan
+  resources:
+  - apiVersion: apps/v1
+    kind: Deployment
+    name: ui
+    namespace: default
+  result: pass
+  rule: autogen-read-only-root-filesystem
+  scored: true
+  severity: high
+  source: kyverno
+  timestamp:
+    nanos: 0
+    seconds: 1793202918
+- category: Best Practices
+  message: validation rule 'autogen-restrict-to-group-registry' passed.
+  policy: restrict-image-registries
+  properties:
+    process: background scan
+  resources:
+  - apiVersion: apps/v1
+    kind: Deployment
+    name: ui
+    namespace: default
+  result: pass
+  rule: autogen-restrict-to-group-registry
+  scored: true
+  severity: high
+  source: kyverno
+  timestamp:
+    nanos: 0
+    seconds: 1793202918
+- category: Best Practices
+  message: validation rule 'autogen-require-cpu-memory-limits' passed.
+  policy: require-resource-limits
+  properties:
+    process: background scan
+  resources:
+  - apiVersion: apps/v1
+    kind: Deployment
+    name: checkout
+    namespace: default
+  result: pass
+  rule: autogen-require-cpu-memory-limits
+  scored: true
+  severity: medium
+  source: kyverno
+  timestamp:
+    nanos: 0
+    seconds: 1793202918
+- category: Pod Security Standards (Restricted)
+  message: validation rule 'autogen-disallow-privilege-escalation' passed.
+  policy: disallow-privilege-escalation
+  properties:
+    process: background scan
+  resources:
+  - apiVersion: apps/v1
+    kind: Deployment
+    name: orders
+    namespace: default
+  result: pass
+  rule: autogen-disallow-privilege-escalation
+  scored: true
+  severity: high
+  source: kyverno
+  timestamp:
+    nanos: 0
+    seconds: 1793202918
 source: ""
 summary:
   error: 0
