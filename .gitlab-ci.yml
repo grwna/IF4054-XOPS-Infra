@@ -17,8 +17,9 @@ validate_policies:
   stage: validate
   image: alpine:latest
   script:
-    - wget -qO- https://github.com/kyverno/kyverno/releases/download/v1.19.2/kyverno-cli_v1.19.2_linux_x86_64.tar.gz | tar -xz -C /usr/local/bin kyverno
-    - kyverno test ./kyverno-policies/tests/
+    - apk add --no-cache curl
+    - curl -sL https://github.com/kyverno/kyverno/releases/download/v1.19.2/kyverno-cli_v1.19.2_linux_x86_64.tar.gz | tar -xz -C /usr/local/bin kyverno
+    - kyverno test ./kyverno/tests/
 
 
 # Terraform: cluster + namespaces + ingress-nginx + kyverno + metrics-server
