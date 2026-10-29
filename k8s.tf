@@ -122,6 +122,11 @@ resource "helm_release" "kyverno" {
   timeout          = 900
   cleanup_on_fail  = true
   depends_on       = [null_resource.wait_for_api]
+  
+  set {
+    name  = "migration.enabled"
+    value = "false"
+  }
 }
 
 # --- Metrics Server (required for HPA) ---

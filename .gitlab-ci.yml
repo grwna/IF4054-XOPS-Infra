@@ -45,11 +45,11 @@ deploy_dev:
     - >-
       helm upgrade --install retail-app ./helm/charts/app -n dev
       --values ./helm/values/dev.yaml
-      --set cart.image.tag=${APP_IMAGE_TAG:-$CI_COMMIT_SHORT_SHA}
-      --set catalog.image.tag=${APP_IMAGE_TAG:-$CI_COMMIT_SHORT_SHA}
-      --set checkout.image.tag=${APP_IMAGE_TAG:-$CI_COMMIT_SHORT_SHA}
-      --set orders.image.tag=${APP_IMAGE_TAG:-$CI_COMMIT_SHORT_SHA}
-      --set ui.image.tag=${APP_IMAGE_TAG:-$CI_COMMIT_SHORT_SHA}
+      --set cart.image.tag=${APP_IMAGE_TAG:-latest}
+      --set catalog.image.tag=${APP_IMAGE_TAG:-latest}
+      --set checkout.image.tag=${APP_IMAGE_TAG:-latest}
+      --set orders.image.tag=${APP_IMAGE_TAG:-latest}
+      --set ui.image.tag=${APP_IMAGE_TAG:-latest}
   environment:
     name: dev
   rules:
@@ -63,11 +63,11 @@ deploy_prod:
     - >-
       helm upgrade --install retail-app ./helm/charts/app -n prod
       --values ./helm/values/prod.yaml
-      --set cart.image.tag=${APP_IMAGE_TAG:-$CI_COMMIT_SHORT_SHA}
-      --set catalog.image.tag=${APP_IMAGE_TAG:-$CI_COMMIT_SHORT_SHA}
-      --set checkout.image.tag=${APP_IMAGE_TAG:-$CI_COMMIT_SHORT_SHA}
-      --set orders.image.tag=${APP_IMAGE_TAG:-$CI_COMMIT_SHORT_SHA}
-      --set ui.image.tag=${APP_IMAGE_TAG:-$CI_COMMIT_SHORT_SHA}
+      --set cart.image.tag=${APP_IMAGE_TAG:-latest}
+      --set catalog.image.tag=${APP_IMAGE_TAG:-latest}
+      --set checkout.image.tag=${APP_IMAGE_TAG:-latest}
+      --set orders.image.tag=${APP_IMAGE_TAG:-latest}
+      --set ui.image.tag=${APP_IMAGE_TAG:-latest}
   environment:
     name: prod
   when: manual
