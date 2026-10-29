@@ -112,12 +112,7 @@
         --non-interactive
         --url "{{ gitlab_url }}"
         --token "{{ gitlab_token }}"
-        --executor "docker"
-        --docker-image "alpine:latest"
-        --docker-volumes "/var/run/docker.sock:/var/run/docker.sock"
-        --docker-volumes "/home/xops/.kube:/root/.kube"
-        --docker-volumes "/home/xops/IF4054-XOPS-Infra:/home/xops/IF4054-XOPS-Infra"
-        --docker-network-mode "host"
+        --executor "shell"
         --description "wsl-kind-runner"
       when: "'[[runners]]' not in runner_cfg.stdout"
       register: runner_reg
