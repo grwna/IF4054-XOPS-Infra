@@ -96,7 +96,7 @@ prod) rather than relying on the placeholder tags committed here.
 
 ## 4. Kyverno policies
 
-All 6 policies live in `kyverno/policies/`, `apiVersion: kyverno.io/v1`,
+All 6 policies live in `kyverno-policies/policies/`, `apiVersion: kyverno.io/v1`,
 `kind: ClusterPolicy`, `validationFailureAction: Enforce` (not `Audit` —
 audit only warns, it does not reject, so it would not satisfy "deployment
 yang melanggar ditolak"). Each matches `kind: Pod` and relies on Kyverno's
@@ -134,14 +134,14 @@ All of the following are reproducible locally, no cluster required (`brew
 install helm kyverno kustomize`):
 
 - **`docs/evidence/kyverno-test-output.txt`** — output of `kyverno test
-  kyverno/tests/`, a declarative test suite (`kyverno/tests/kyverno-test.yaml`)
+  kyverno-policies/tests/`, a declarative test suite (`kyverno-policies/tests/kyverno-test.yaml`)
   that cross-checks all 6 policies against 8 fixtures (1 compliant baseline +
   7 fixtures, each with exactly one deliberate violation, generated from a
   real rendered `cart` Deployment — not synthetic). Result: **48/48 expected
   outcomes matched, 0 failed** — every policy passes the compliant fixture and
   every other fixture, and fails only the fixture it's meant to catch.
 - **`docs/evidence/sample-denials.txt`** — the human-readable Kyverno denial
-  message for each of the 7 violations (`kyverno apply kyverno/policies/
+  message for each of the 7 violations (`kyverno apply kyverno-policies/policies/
   --resource <fixture>`), showing the exact policy, rule, and field path that
   rejected it.
 - **`docs/evidence/kyverno-apply-dev-report.yaml`** /
@@ -154,8 +154,8 @@ install helm kyverno kustomize`):
 To reproduce:
 ```
 ./scripts/render.sh
-kyverno apply kyverno/policies/ --resource rendered/dev.yaml --policy-report
-kyverno test kyverno/tests/
+kyverno apply kyverno-policies/policies/ --resource rendered/dev.yaml --policy-report
+kyverno test kyverno-policies/tests/
 ```
 
 ## 6. Known gaps / handed off to other members

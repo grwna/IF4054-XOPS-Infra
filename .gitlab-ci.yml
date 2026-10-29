@@ -15,11 +15,10 @@ variables:
 # Kyverno CLI validation test suite
 validate_policies:
   stage: validate
-  image:
-    name: ghcr.io/kyverno/kyverno-cli:v1.19.2
-    entrypoint: [""]
+  image: buildpack-deps:curl
   script:
-    - kyverno test ./kyverno/tests/
+    - curl -sL https://github.com/kyverno/kyverno/releases/download/v1.19.2/kyverno-cli_v1.19.2_linux_x86_64.tar.gz | tar -xz -C /usr/local/bin kyverno
+    - kyverno test ./kyverno-policies/tests/
 
 # Terraform: cluster + namespaces + ingress-nginx + kyverno + metrics-server
 # State persists on the xops host project directory via the server-setup.yaml runner volume.
@@ -43,7 +42,7 @@ deploy_infra:
   stage: deploy-infra
   image: bitnami/kubectl:latest
   script:
-    - kubectl apply -f kyverno/policies/
+    - kubectl apply -f kyverno-policies/policies/
   rules:
     - if: '$CI_COMMIT_BRANCH == "dev" || $CI_COMMIT_BRANCH == "main"'
 
@@ -66,7 +65,6 @@ deploy_dev:
     name: dev
   rules:
     - if: '$CI_COMMIT_BRANCH == "dev"'
-    - if: '$CI_PIPELINE_SOURCE == "pipeline"'
 
 # Manual approval gate for Production deployment
 deploy_prod:
@@ -87,4 +85,3 @@ deploy_prod:
   when: manual  # approved by human
   rules:
     - if: '$CI_COMMIT_BRANCH == "main"'
-    - if: '$CI_PIPELINE_SOURCE == "pipeline"'
