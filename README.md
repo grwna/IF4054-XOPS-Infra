@@ -1,8 +1,8 @@
 # retail-app-infra-xops
 
 > **Integration note:** the manifests + Kyverno policy scope is wired at `helm/charts/app`
-> and `kyverno/policies/`. The pipeline tests against `kyverno/tests/`, deploys policies
-> via `kyverno/policies/`, and deploys environments using `helm/values/{dev,prod}.yaml`.
+> and `kyverno-policies/policies/`. The pipeline tests against `kyverno-policies/tests/`, deploys policies
+> via `kyverno-policies/policies/`, and deploys environments using `helm/values/{dev,prod}.yaml`.
 
 ## Project Structure
 
@@ -33,8 +33,8 @@
 - `helm/charts/app/` - umbrella chart that assembles the retail application services.
 - `helm/values/` - development and production Helm value overrides.
 - `kyverno/` - Kyverno policy definitions and their test suite.
-- `kyverno/policies/` - cluster policies enforcing workload security and reliability requirements.
-- `kyverno/tests/` - declarative Kyverno policy tests.
+- `kyverno-policies/policies/` - cluster policies enforcing workload security and reliability requirements.
+- `kyverno-policies/tests/` - declarative Kyverno policy tests.
 - `scripts/` - utility scripts for rendering and validating deployment manifests.
 
 
@@ -192,11 +192,11 @@ docs/
 ./scripts/render.sh
 
 # check the real manifests against all 6 policies (expect 0 fail)
-kyverno apply kyverno/policies/ --resource rendered/dev.yaml --policy-report
-kyverno apply kyverno/policies/ --resource rendered/prod.yaml --policy-report
+kyverno apply kyverno-policies/policies/ --resource rendered/dev.yaml --policy-report
+kyverno apply kyverno-policies/policies/ --resource rendered/prod.yaml --policy-report
 
 # run the full positive/negative fixture test suite (expect 48 passed, 0 failed)
-kyverno test kyverno/tests/
+kyverno test kyverno-policies/tests/
 ```
 
 ## What's enforced
@@ -217,8 +217,8 @@ values + the CI/CD pipeline rather than by Kyverno - see
 ## Pipeline Path Alignment
 
 `.gitlab-ci.yml` is aligned directly with the production deliverables:
-- `validate_policies` executes `kyverno test ./kyverno/tests/`
-- `deploy_infra` applies `kubectl apply -f kyverno/policies/`
+- `validate_policies` executes `kyverno test ./kyverno-policies/tests/`
+- `deploy_infra` applies `kubectl apply -f kyverno-policies/policies/`
 - `deploy_dev` and `deploy_prod` build dependencies and deploy from `./helm/charts/app` with `./helm/values/{dev,prod}.yaml`
 The old placeholder directories (`helm-charts/` and `kyverno-policies/`) have been removed.
 
@@ -235,10 +235,10 @@ A docker-compose.yml has been added to enable running Helm, Kyverno, and Kubectl
   `docker compose run --rm helm template retail ./helm/charts/app -f ./helm/values/prod.yaml`
 
 • Run Kyverno Policy Tests:
-  `docker compose run --rm kyverno test ./kyverno/tests/`
+  `docker compose run --rm kyverno test ./kyverno-policies/tests/`
 
 • Verify Policies against Rendered Manifests:
-  `docker compose run --rm kyverno apply ./kyverno/policies/ --resource rendered/dev.yaml`
+  `docker compose run --rm kyverno apply ./kyverno-policies/policies/ --resource rendered/dev.yaml`
 
 • Kubectl Client Commands:
   `docker compose run --rm kubectl version --client`

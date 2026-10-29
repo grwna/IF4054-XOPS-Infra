@@ -1,44 +1,43 @@
-=== One violation per Kyverno policy, run via: kyverno apply kyverno/policies/ --resource <fixture> ===
+=== One violation per Kyverno policy, run via: kyverno apply kyverno-policies/policies/ --resource <fixture> ===
 
---- resource: kyverno/tests/resources/violate-missing-cpu-limit.yaml ---
+--- resource: kyverno-policies/tests/resources/violate-missing-cpu-limit.yaml ---
 Applying 12 policy rule(s) to 1 resource(s)...
 policy require-resource-limits -> resource default/Deployment/carts-violate-missing-cpu-limit failed:
 1 - autogen-require-cpu-memory-limits validation error: Container must declare both resources.limits.cpu and resources.limits.memory. rule autogen-require-cpu-memory-limits failed at path /spec/template/spec/containers/0/resources/limits/cpu/
 
 
---- resource: kyverno/tests/resources/violate-missing-liveness.yaml ---
+--- resource: kyverno-policies/tests/resources/violate-missing-liveness.yaml ---
 Applying 12 policy rule(s) to 1 resource(s)...
 policy require-liveness-readiness-probes -> resource default/Deployment/carts-violate-missing-liveness failed:
 1 - autogen-require-both-probes validation error: Container must define both livenessProbe and readinessProbe. rule autogen-require-both-probes failed at path /spec/template/spec/containers/0/livenessProbe/
 
 
---- resource: kyverno/tests/resources/violate-missing-readiness.yaml ---
+--- resource: kyverno-policies/tests/resources/violate-missing-readiness.yaml ---
 Applying 12 policy rule(s) to 1 resource(s)...
 policy require-liveness-readiness-probes -> resource default/Deployment/carts-violate-missing-readiness failed:
 1 - autogen-require-both-probes validation error: Container must define both livenessProbe and readinessProbe. rule autogen-require-both-probes failed at path /spec/template/spec/containers/0/readinessProbe/
 
 
---- resource: kyverno/tests/resources/violate-priv-escalation.yaml ---
+--- resource: kyverno-policies/tests/resources/violate-priv-escalation.yaml ---
 Applying 12 policy rule(s) to 1 resource(s)...
 policy disallow-privilege-escalation -> resource default/Deployment/carts-violate-priv-escalation failed:
 1 - autogen-disallow-privilege-escalation validation error: Container must set securityContext.allowPrivilegeEscalation=false explicitly on every container. rule autogen-disallow-privilege-escalation failed at path /spec/template/spec/containers/0/securityContext/allowPrivilegeEscalation/
 
 
---- resource: kyverno/tests/resources/violate-root.yaml ---
+--- resource: kyverno-policies/tests/resources/violate-root.yaml ---
 Applying 12 policy rule(s) to 1 resource(s)...
 policy require-run-as-nonroot -> resource default/Deployment/carts-violate-root failed:
 1 - autogen-run-as-non-root validation error: Container must run as non-root: securityContext.runAsNonRoot must be true, set at the pod level or on every container. rule autogen-run-as-non-root[0] failed at path /spec/template/spec/securityContext/runAsNonRoot/ rule autogen-run-as-non-root[1] failed at path /spec/template/spec/containers/0/securityContext/runAsNonRoot/
 
 
---- resource: kyverno/tests/resources/violate-untrusted-registry.yaml ---
+--- resource: kyverno-policies/tests/resources/violate-untrusted-registry.yaml ---
 Applying 12 policy rule(s) to 1 resource(s)...
 policy restrict-image-registries -> resource default/Deployment/carts-violate-untrusted-registry failed:
 1 - autogen-restrict-to-group-registry validation error: Container image must come from this group's Docker Hub namespace: docker.io/starath/retail-store-*. rule autogen-restrict-to-group-registry failed at path /spec/template/spec/containers/0/image/
 
 
---- resource: kyverno/tests/resources/violate-writable-fs.yaml ---
+--- resource: kyverno-policies/tests/resources/violate-writable-fs.yaml ---
 Applying 12 policy rule(s) to 1 resource(s)...
 policy require-readonly-rootfs -> resource default/Deployment/carts-violate-writable-fs failed:
 1 - autogen-read-only-root-filesystem validation error: Container must set securityContext.readOnlyRootFilesystem=true on every container. rule autogen-read-only-root-filesystem failed at path /spec/template/spec/containers/0/securityContext/readOnlyRootFilesystem/
-
 

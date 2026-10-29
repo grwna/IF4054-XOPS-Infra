@@ -18,7 +18,7 @@ validate_policies:
   image: alpine:latest
   script:
     - wget -qO- https://github.com/kyverno/kyverno/releases/download/v1.19.2/kyverno-cli_v1.19.2_linux_x86_64.tar.gz | tar -xz -C /usr/local/bin kyverno
-    - kyverno-policies test ./kyverno/tests/
+    - kyverno test ./kyverno-policies/tests/
 
 
 # Terraform: cluster + namespaces + ingress-nginx + kyverno + metrics-server
@@ -43,7 +43,7 @@ deploy_infra:
   stage: deploy-infra
   image: bitnami/kubectl:latest
   script:
-    - kubectl apply -f kyverno/policies/
+    - kubectl apply -f kyverno-policies/policies/
   rules:
     - if: '$CI_COMMIT_BRANCH == "dev" || $CI_COMMIT_BRANCH == "main"'
 
