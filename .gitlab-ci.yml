@@ -8,6 +8,8 @@ stages:
 default:
   tags:
     - xops
+  before_script:
+    - kind export kubeconfig --name xops
 
 # Kyverno CLI validation test suite
 validate_policies:
