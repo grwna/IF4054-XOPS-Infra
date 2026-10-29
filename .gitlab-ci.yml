@@ -22,8 +22,8 @@ terraform_apply:
   timeout: 30m
   script:
     - terraform init
-    - terraform apply -target=kind_cluster.xops -auto-approve
-    - terraform apply -auto-approve
+    - terraform apply -target=kind_cluster.xops -state=/home/gitlab-runner/terraform.tfstate -auto-approve
+    - terraform apply -state=/home/gitlab-runner/terraform.tfstate -auto-approve
   rules:
     - if: '$CI_COMMIT_BRANCH == "dev" || $CI_COMMIT_BRANCH == "main"'
 
