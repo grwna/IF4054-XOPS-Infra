@@ -130,26 +130,12 @@ cluster-level HPA/metrics-server setup instead, each for a stated reason):
 
 ## 5. Evidence
 
-All of the following are reproducible locally, no cluster required (`brew
-install helm kyverno kustomize`):
-
-- **`docs/evidence/kyverno-test-output.txt`** — output of `kyverno test
-  kyverno-policies/tests/`, a declarative test suite (`kyverno-policies/tests/kyverno-test.yaml`)
-  that cross-checks all 6 policies against 8 fixtures (1 compliant baseline +
-  7 fixtures, each with exactly one deliberate violation, generated from a
-  real rendered `cart` Deployment — not synthetic). Result: **48/48 expected
-  outcomes matched, 0 failed** — every policy passes the compliant fixture and
-  every other fixture, and fails only the fixture it's meant to catch.
-- **`docs/evidence/sample-denials.txt`** — the human-readable Kyverno denial
-  message for each of the 7 violations (`kyverno apply kyverno-policies/policies/
-  --resource <fixture>`), showing the exact policy, rule, and field path that
-  rejected it.
-- **`docs/evidence/kyverno-apply-dev-report.yaml`** /
-  **`kyverno-apply-prod-report.yaml`** — the full policy report from running
-  all 6 policies against the actual rendered dev/prod manifests (all 5
-  services, not a cherry-picked one). Summary: **30/30 checks passed, 0
-  failed** in both environments (5 services × 6 policies) — proving the real
-  deployment manifests, not just the test fixtures, are compliant.
+The committed evidence currently contains the static policy reports in
+`docs/evidence/kyverno-apply-dev-report.yaml` and
+`docs/evidence/kyverno-apply-prod-report.yaml`. The declarative test suite,
+sample denial output, and live-cluster results are verification artifacts to
+generate and archive after the corresponding commands have been run; this
+repository does not claim those results from static source inspection alone.
 
 To reproduce:
 ```
@@ -175,5 +161,5 @@ kyverno test kyverno-policies/tests/
   work; this is why local Kyverno tests above don't filter by namespace and
   instead exclude only `kube-system`/`kyverno` by name.
 - **Image digests / pinned promotion, prod approval gate, HPA load test,
-  cluster bootstrap** are infra CI/CD pipeline concerns, not part of this
-  manifest/policy deliverable.
+  cluster bootstrap** remain infra CI/CD verification items and are not proven
+  by this manifest/policy deliverable.

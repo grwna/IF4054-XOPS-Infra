@@ -49,7 +49,10 @@
 **Day 0 (once, manual):** ansible installs host tools + registers runner. Host is bootstrapper concern - can't be in CI because runner must exist before any job runs.
 **Day 1+ (every push):** pipeline deploys ALL infra via CI/CD (spec requirement): terraform (cluster/platform), Kyverno policies, Helm chart (dev auto, prod manual gate).
 
-Terraform state is stored at `/home/xops/IF4054-XOPS-Infra/terraform.tfstate` and mounted into runner jobs through `/home/xops/IF4054-XOPS-Infra`. Ansible/cloudflared/runner config never touched by pipeline.
+Terraform state is stored at `/home/gitlab-runner/terraform.tfstate`, matching the
+backend path in `k8s.tf` and the explicit `-state` path used by CI. The runner
+must have read/write access to that path. Ansible/cloudflared/runner config is
+bootstrap-only and is not changed by the pipeline.
 
 ## How to Use
 
@@ -69,12 +72,12 @@ chmod +x init.sh && sudo ./init.sh
 sudo ansible-playbook server-setup.yaml
 ```
 
-- Verify tools + runner container:
+- Verify tools + runner:
 ```bash
 kubectl version --client
 kind --version
 terraform version
-docker ps
+gitlab-runner --version
 ```
 
 Cluster + platform (kind, namespaces, ingress-nginx, Kyverno, metrics-server) is created by the **pipeline** on first push (`terraform_apply` job) - no manual terraform needed. Fallback if CI bootstrap fails, run locally:
@@ -84,11 +87,8 @@ sudo terraform apply -target=kind_cluster.xops -auto-approve
 sudo terraform apply -auto-approve
 ```
 
-Note: runner must be **re-registered** once after the `/home/xops/IF4054-XOPS-Infra` mount was added (jobs need the volume):
-```bash
-docker exec gitlab-runner gitlab-runner unregister --all-runners
-sudo ansible-playbook server-setup.yaml
-```
+The runner must be registered with the `xops` tag and have read/write access to
+`/home/gitlab-runner/terraform.tfstate` before the first pipeline run.
 
 ### Restart after shutdown
 
