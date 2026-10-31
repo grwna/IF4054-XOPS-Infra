@@ -2,6 +2,7 @@
 # Renders the umbrella Helm chart for each environment into rendered/<env>.yaml.
 # Run from the repo root: ./scripts/render.sh
 set -euo pipefail
+: "${DOCKERHUB_NAMESPACE:?DOCKERHUB_NAMESPACE is required}"
 
 REPO_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 CHART_DIR="$REPO_ROOT/helm/charts/app"
@@ -21,6 +22,11 @@ for env in dev prod; do
     --namespace "$env" \
     --no-hooks \
     -f "$REPO_ROOT/helm/values/$env.yaml" \
+    --set "cart.image.repository=docker.io/$DOCKERHUB_NAMESPACE/retail-store-cart" \
+    --set "catalog.image.repository=docker.io/$DOCKERHUB_NAMESPACE/retail-store-catalog" \
+    --set "checkout.image.repository=docker.io/$DOCKERHUB_NAMESPACE/retail-store-checkout" \
+    --set "orders.image.repository=docker.io/$DOCKERHUB_NAMESPACE/retail-store-orders" \
+    --set "ui.image.repository=docker.io/$DOCKERHUB_NAMESPACE/retail-store-ui" \
     > "$OUT_DIR/$env.yaml"
 done
 

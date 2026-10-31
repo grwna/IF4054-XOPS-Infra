@@ -48,7 +48,7 @@ Checked directly against `src/<service>/chart/templates/deployment.yaml` and
 | Non-root | `runAsNonRoot: true`, `runAsUser: 1000` ✅ | kept, then corrected to `10001` — see note below |
 | Read-only root filesystem | `readOnlyRootFilesystem: true` + `emptyDir` for `/tmp` ✅ | kept |
 | No privilege escalation | `allowPrivilegeEscalation` never set ❌ (Kubernetes default is `true`) | added `allowPrivilegeEscalation: false` to every service's `securityContext` in `values.yaml` |
-| Image from own registry | defaults to `public.ecr.aws/aws-containers/...` ❌ | overridden per environment to `docker.io/starath/retail-store-<service>` |
+| Image from own registry | defaults to `public.ecr.aws/aws-containers/...` ❌ | overridden by the group `DOCKERHUB_NAMESPACE` variable to `docker.io/$DOCKERHUB_NAMESPACE/retail-store-<service>` |
 | Ingress/gateway from outside | present only on the `ui` chart ✅ (correct — `ui` is the only public entry point, every other service is ClusterIP-only and reached through `ui`) | enabled per environment with a distinct dev/prod host |
 
 Liveness probe paths were chosen per service's actual health framework:
@@ -114,7 +114,7 @@ bootstrap or self-healing.
 | `disallow-privilege-escalation.yaml` | 3.d — larangan privilege escalation | `allowPrivilegeEscalation` not explicitly `false` (missing field is rejected too, since the Kubernetes default is `true`) |
 | `require-resource-limits.yaml` | 3.c — limit resource CPU dan memory | missing `resources.limits.cpu` or `resources.limits.memory` |
 | `require-liveness-readiness-probes.yaml` | 3.c — liveness **dan** readiness probe | missing either probe. Written independently of Kyverno's own official "require-probes" example policy, which only requires *one* of liveness/readiness/startup — not strict enough for this requirement. |
-| `restrict-image-registries.yaml` | 3.b — image hanya dari registry sendiri | image that doesn't match the group's Docker Hub namespace prefix (`docker.io/starath/retail-store-*`) |
+| `restrict-image-registries.yaml` | 3.b — image hanya dari registry sendiri | image that doesn't match the group's Docker Hub namespace prefix (`docker.io/$DOCKERHUB_NAMESPACE/retail-store-*`) |
 
 Deliberately **not** enforced via Kyverno (left to the CI/CD pipeline or the
 cluster-level HPA/metrics-server setup instead, each for a stated reason):
@@ -152,7 +152,8 @@ kyverno test kyverno-policies/tests/
   actually publishes to **Docker Hub** instead (`ci/publish-images.py`,
   `IMAGE_HOST = "docker.io"`), confirmed via the app repo's group-level
   CI/CD variable `DOCKERHUB_NAMESPACE = starath`. All `values.yaml`/policy
-  files were updated to `docker.io/starath/retail-store-<service>`.
+  files are rendered from the group `DOCKERHUB_NAMESPACE` variable as
+  `docker.io/$DOCKERHUB_NAMESPACE/retail-store-<service>`.
 - **Ingress controller.** `ingressClassName: nginx` is a placeholder; whoever
   owns cluster bootstrap (IaC) picks and installs the actual controller.
 - **Namespace is not baked into the manifests** — `metadata.namespace` is

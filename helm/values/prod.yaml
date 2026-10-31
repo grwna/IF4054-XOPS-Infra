@@ -11,7 +11,7 @@
 
 cart:
   image:
-    repository: docker.io/starath/retail-store-cart
+    repository: docker.io/__DOCKERHUB_NAMESPACE__/retail-store-cart
     tag: "1.6.3"
   autoscaling:
     enabled: true
@@ -21,7 +21,7 @@ cart:
 
 catalog:
   image:
-    repository: docker.io/starath/retail-store-catalog
+    repository: docker.io/__DOCKERHUB_NAMESPACE__/retail-store-catalog
     tag: "1.6.3"
   autoscaling:
     enabled: true
@@ -31,7 +31,7 @@ catalog:
 
 checkout:
   image:
-    repository: docker.io/starath/retail-store-checkout
+    repository: docker.io/__DOCKERHUB_NAMESPACE__/retail-store-checkout
     tag: "1.6.3"
   autoscaling:
     enabled: true
@@ -41,7 +41,7 @@ checkout:
 
 orders:
   image:
-    repository: docker.io/starath/retail-store-orders
+    repository: docker.io/__DOCKERHUB_NAMESPACE__/retail-store-orders
     tag: "1.6.3"
   autoscaling:
     enabled: true
@@ -51,7 +51,7 @@ orders:
 
 ui:
   image:
-    repository: docker.io/starath/retail-store-ui
+    repository: docker.io/__DOCKERHUB_NAMESPACE__/retail-store-ui
     tag: "1.6.3"
   autoscaling:
     enabled: true

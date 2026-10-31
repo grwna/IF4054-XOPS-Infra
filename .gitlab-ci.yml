@@ -15,7 +15,8 @@ default:
 validate_policies:
   stage: validate
   script:
-    - kyverno test ./kyverno-policies/tests/
+    - sh ./scripts/render-policies.sh
+    - kyverno test ./generated/kyverno-policies/tests/
 
 # Terraform: cluster + namespaces + ingress-nginx + kyverno + metrics-server
 terraform_apply:
@@ -33,7 +34,8 @@ terraform_apply:
 deploy_infra:
   stage: deploy-infra
   script:
-    - kubectl apply -f kyverno-policies/policies/
+    - sh ./scripts/render-policies.sh
+    - kubectl apply -f generated/kyverno-policies/policies/
   rules:
     - if: '$CI_COMMIT_BRANCH == "dev" || $CI_COMMIT_BRANCH == "main"'
 
@@ -45,11 +47,11 @@ deploy_dev:
     - >-
       helm upgrade --install retail-app ./helm/charts/app -n dev
       --values ./helm/values/dev.yaml
-      --set cart.image.tag=${APP_IMAGE_TAG:-latest}
-      --set catalog.image.tag=${APP_IMAGE_TAG:-latest}
-      --set checkout.image.tag=${APP_IMAGE_TAG:-latest}
-      --set orders.image.tag=${APP_IMAGE_TAG:-latest}
-      --set ui.image.tag=${APP_IMAGE_TAG:-latest}
+      --set cart.image.repository=docker.io/${DOCKERHUB_NAMESPACE}/retail-store-cart
+      --set catalog.image.repository=docker.io/${DOCKERHUB_NAMESPACE}/retail-store-catalog
+      --set checkout.image.repository=docker.io/${DOCKERHUB_NAMESPACE}/retail-store-checkout
+      --set orders.image.repository=docker.io/${DOCKERHUB_NAMESPACE}/retail-store-orders
+      --set ui.image.repository=docker.io/${DOCKERHUB_NAMESPACE}/retail-store-ui
   environment:
     name: dev
   rules:
@@ -59,15 +61,22 @@ deploy_dev:
 deploy_prod:
   stage: deploy-prod
   script:
+    - test -n "$APP_IMAGE_TAG"
+    - test -n "$DOCKERHUB_NAMESPACE"
     - helm dependency build ./helm/charts/app
     - >-
       helm upgrade --install retail-app ./helm/charts/app -n prod
       --values ./helm/values/prod.yaml
-      --set cart.image.tag=${APP_IMAGE_TAG:-latest}
-      --set catalog.image.tag=${APP_IMAGE_TAG:-latest}
-      --set checkout.image.tag=${APP_IMAGE_TAG:-latest}
-      --set orders.image.tag=${APP_IMAGE_TAG:-latest}
-      --set ui.image.tag=${APP_IMAGE_TAG:-latest}
+      --set cart.image.repository=docker.io/${DOCKERHUB_NAMESPACE}/retail-store-cart
+      --set cart.image.tag=$APP_IMAGE_TAG
+      --set catalog.image.repository=docker.io/${DOCKERHUB_NAMESPACE}/retail-store-catalog
+      --set catalog.image.tag=$APP_IMAGE_TAG
+      --set checkout.image.repository=docker.io/${DOCKERHUB_NAMESPACE}/retail-store-checkout
+      --set checkout.image.tag=$APP_IMAGE_TAG
+      --set orders.image.repository=docker.io/${DOCKERHUB_NAMESPACE}/retail-store-orders
+      --set orders.image.tag=$APP_IMAGE_TAG
+      --set ui.image.repository=docker.io/${DOCKERHUB_NAMESPACE}/retail-store-ui
+      --set ui.image.tag=$APP_IMAGE_TAG
   environment:
     name: prod
   when: manual
